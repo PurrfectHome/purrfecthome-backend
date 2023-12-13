@@ -14,7 +14,7 @@ const { connect } = require('./config/mongo');
 
 const server = new ApolloServer({
     typeDefs: [userTypeDefs, messageTypeDefs, conversationTypeDefs],
-    resolvers: [userResolvers, messageResolvers, conversationResolvers],
+    resolvers: [userResolvers, messageResolvers, conversationResolvers]
   });
   
   // Passing an ApolloServer instance to the `startStandaloneServer` function:
