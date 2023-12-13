@@ -9,16 +9,15 @@ const { typeDefs: conversationTypeDefs, resolvers: conversationResolvers } = req
 
 const server = new ApolloServer({
     typeDefs: [userTypeDefs, messageTypeDefs, conversationTypeDefs],
-    resolvers: [userResolvers, messageResolvers, conversationResolvers],
+    resolvers: [userResolvers, messageResolvers, conversationResolvers]
   });
-  
-  // Passing an ApolloServer instance to the `startStandaloneServer` function:
-  //  1. creates an Express app
-  //  2. installs your ApolloServer instance as middleware
-  //  3. prepares your app to handle incoming requests
 
 startStandaloneServer(server, {
     listen: { port: 4000 },
-});
+}).then(({ url }) => {
+    console.log(`🚀 Server ready at: ${url}`);
+})
+
+
+
   
-  console.log(`🚀  Server ready at: ${url}`);
