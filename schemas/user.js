@@ -1,3 +1,6 @@
+const { GraphQLError } = require("graphql");
+const User = require("../models/user");
+
 const typeDefs = `#graphql
 
   type User {
@@ -6,16 +9,16 @@ const typeDefs = `#graphql
     username: String
     email: String
     password: String
-    long: ID
-    lat: ID
+    long: Float
+    lat: Float
     createdAt: String
     updatedAt: String
   }
+  
   type Post {
     id: ID
     fullname: String
     username: String
-    lat: ID
     createdAt: String
     updatedAt: String
   }
@@ -25,7 +28,14 @@ const typeDefs = `#graphql
   }
 
   type Mutation {
-
+    register(
+        fullname: String
+        username: String
+        email: String
+        password: String
+        longitude: Float
+        latitude: Float
+    ): User
   }
 `;
 
@@ -35,7 +45,19 @@ const resolvers = {
     },
 
     Mutation: {
-
+        register: async(_, args) => {
+            try {
+                const { fullname, username, email, password, longitude, latitude } = args
+                if(!fullname) { throw new GraphQLError("Fullname is required")}
+                if(!username) { throw new GraphQLError("Username is required")}
+                if(!email) { throw new GraphQLError("Email is required")}
+                if(!password) { throw new GraphQLError("Password is required")}
+                if(!email) { throw new GraphQLError("Email is required")}
+                if(!longitude || !latitude) { throw new GraphQLError("Invalid location data")}
+            } catch(err) {
+                throw err
+            }
+        }
     }
 }
 
