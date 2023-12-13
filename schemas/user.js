@@ -6,8 +6,16 @@ const typeDefs = `#graphql
     username: String
     email: String
     password: String
-    provinceId: ID
-    cityId: ID
+    long: ID
+    lat: ID
+    createdAt: String
+    updatedAt: String
+  }
+  type Post {
+    id: ID
+    fullname: String
+    username: String
+    lat: ID
     createdAt: String
     updatedAt: String
   }
