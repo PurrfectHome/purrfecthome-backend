@@ -21,7 +21,7 @@ class User {
     }
 
     static async getByUsername({ username }) {
-        const Users = getDB().collection("users");
+        const Users = getDB().collection("Users");
         const user = await Users.findOne({ username });
 
         return user;
