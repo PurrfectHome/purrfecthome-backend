@@ -18,21 +18,21 @@ class User {
     }
 
     static async getByUsername({ username }) {
-        const Users = getDB().collection("users");
+        const Users = getDB().collection("Users");
         const user = await Users.findOne({ username });
 
         return user;
     }
 
     static async getByEmail({ email }) {
-        const Users = getDB().collection("users");
+        const Users = getDB().collection("Users");
         const user = await Users.findOne({ email });
 
         return user;
     }
 
     static async getById({ id }) {
-        const Users = getDB().collection("users");
+        const Users = getDB().collection("Users");
         const user = await Users.aggregate([
             {
                 $match: { _id: id }
