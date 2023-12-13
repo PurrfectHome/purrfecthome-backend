@@ -9,8 +9,16 @@ const typeDefs = `#graphql
     username: String
     email: String
     password: String
-    longitude: Float
-    latitude: Float
+    long: Float
+    lat: Float
+    createdAt: String
+    updatedAt: String
+  }
+  
+  type Post {
+    id: ID
+    fullname: String
+    username: String
     createdAt: String
     updatedAt: String
   }
