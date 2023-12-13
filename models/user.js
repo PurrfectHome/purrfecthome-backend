@@ -1,19 +1,22 @@
 const { getDB } = require("../config/mongo");
-const { hashPassword } = require("../helpers/bcryptjs");
 
 class User {
-      static async create(fullname, username, email, password, longitude, latitude) {
-        const newUser = await getDB().collection("Users").insertOne({
+      static async create(fullname, username, email, hashedPassword, long, lat) {
+        const newUser = {
             fullname,
             username, 
             email, 
-            password: hashPassword(password), 
-            longitude, 
-            latitude,
+            password: hashedPassword, 
+            long, 
+            lat,
+            accountType: "regular",
             createdAt: new Date(),
             updatedAt: new Date() 
-        })
- 
+        }
+        
+        await getDB().collection("Users").insertOne(newUser)
+        delete newUser.id
+        delete newUser.password
         return newUser;
     }
 
@@ -25,14 +28,14 @@ class User {
     }
 
     static async getByEmail({ email }) {
-        const Users = getDB().collection("users");
+        const Users = getDB().collection("Users");
         const user = await Users.findOne({ email });
 
         return user;
     }
 
     static async getById({ id }) {
-        const Users = getDB().collection("users");
+        const Users = getDB().collection("Users");
         const user = await Users.aggregate([
             {
                 $match: { _id: id }
@@ -40,7 +43,7 @@ class User {
             {
                 $lookup:
                 {
-                    from: "follows",
+                    from: "Follows",
                     localField: "_id",
                     foreignField: "followerId",
                     as: "followers"
@@ -49,7 +52,7 @@ class User {
             {
                 $lookup:
                 {
-                    from: "follows",
+                    from: "Follows",
                     localField: "_id",
                     foreignField: "followingId",
                     as: "followings"
@@ -58,7 +61,7 @@ class User {
             {
                 $lookup:
                 {
-                    from: "users",
+                    from: "Users",
                     localField: "followers.followingId",
                     foreignField: "_id",
                     as: "followings"
@@ -67,7 +70,7 @@ class User {
             {
                 $lookup:
                 {
-                    from: "users",
+                    from: "Users",
                     localField: "followings.followerId",
                     foreignField: "_id",
                     as: "followers"
@@ -76,7 +79,7 @@ class User {
             {
                 $lookup:
                 {
-                    from: "posts",
+                    from: "Posts",
                     localField: "_id",
                     foreignField: "authorId",
                     as: "posts"

@@ -1,5 +1,7 @@
 const { GraphQLError } = require("graphql");
 const User = require("../models/user");
+const { emailFormat, passwordValidation } = require("../helpers/validation");
+const { hashPassword } = require("../helpers/bcryptjs");
 
 const typeDefs = `#graphql
   type User {
@@ -10,6 +12,7 @@ const typeDefs = `#graphql
     password: String
     long: Float
     lat: Float
+    accountType: String
     createdAt: String
     updatedAt: String
   }
@@ -24,8 +27,8 @@ const typeDefs = `#graphql
         username: String
         email: String
         password: String
-        longitude: Float
-        latitude: Float
+        long: Float
+        lat: Float
     ): User
     login(
         username: String
@@ -52,13 +55,72 @@ const resolvers = {
   Mutation: {
     register: async (_, args) => {
       try {
-        const { fullname, username, email, password, longitude, latitude } = args
-        if (!fullname) { throw new GraphQLError("Fullname is required") }
-        if (!username) { throw new GraphQLError("Username is required") }
-        if (!email) { throw new GraphQLError("Email is required") }
-        if (!password) { throw new GraphQLError("Password is required") }
-        if (!email) { throw new GraphQLError("Email is required") }
-        if (!longitude || !latitude) { throw new GraphQLError("Invalid location data") }
+        const { fullname, username, email, password, long, lat } = args
+        if (!fullname) { 
+          throw new GraphQLError("Fullname is required", {
+            extensions: { code: "Bad Request"}
+          })
+        }
+
+        if (!email) { 
+          throw new GraphQLError("Email is required", {
+            extensions: { code: 'Bad Request' }
+          })
+        }
+
+        if (!password) { 
+          throw new GraphQLError("Password is required", {
+            extensions: { code: 'Bad Request' }
+          })
+        }
+
+        if (!username) { 
+          throw new GraphQLError("Username is required", {
+            extensions: { code: 'Bad Request' }
+          })
+        }
+
+        if (!long || !lat) {
+           throw new GraphQLError("Invalid location data", {
+            extensions: { code: "Bad Request" }
+           }) 
+        }
+
+        let emailExist = await User.getByEmail({ email });
+        if (emailExist) {
+          throw new GraphQLError('Email has been exist', {
+            extensions: { code: 'Bad Request' },
+          });
+        }
+
+        //validation unique username
+        let usernameExist = await User.getByUsername({ username });
+        if (usernameExist) {
+          throw new GraphQLError('Username has been exist', {
+            extensions: { code: 'Bad Request' },
+          });
+        }
+
+        //validation email format
+        const isEmail = emailFormat(email);
+        if (!isEmail) {
+          throw new GraphQLError('Use a valid Email format', {
+            extensions: { code: 'Bad Request' },
+          });
+        }
+
+        //validation password length
+        const isMinLength = passwordValidation(password);
+        if (!isMinLength) {
+          throw new GraphQLError('Password min 5 characters', {
+            extensions: { code: 'Bad Request' },
+          });
+        }
+
+        const hashedPassword = hashPassword(password);
+        const newUser = await User.create( fullname, username, email, hashedPassword, long, lat );
+        return newUser
+
       } catch (err) {
         throw err
       }
