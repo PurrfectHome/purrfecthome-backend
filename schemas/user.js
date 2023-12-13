@@ -27,6 +27,10 @@ const typeDefs = `#graphql
         longitude: Float
         latitude: Float
     ): User
+    login(
+        username: String
+        password: String
+    ): User
   }
 `;
 
