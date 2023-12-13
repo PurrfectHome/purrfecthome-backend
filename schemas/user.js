@@ -2,7 +2,6 @@ const { GraphQLError } = require("graphql");
 const User = require("../models/user");
 
 const typeDefs = `#graphql
-
   type User {
     id: ID
     fullname: String
@@ -14,17 +13,9 @@ const typeDefs = `#graphql
     createdAt: String
     updatedAt: String
   }
-  
-  type Post {
-    id: ID
-    fullname: String
-    username: String
-    createdAt: String
-    updatedAt: String
-  }
 
   type Query {
-    
+    user: User
   }
 
   type Mutation {
@@ -40,25 +31,35 @@ const typeDefs = `#graphql
 `;
 
 const resolvers = {
-    Query: {
+  Query: {
+    user: async (_, __, { authentication }) => {
+      try {
+        // const { authorId } = await authentication();
+        const authorId = 1;
+        const user = await User.getById({ id: new ObjectId(authorId) });
 
+        return user;
+      } catch (err) {
+        throw err;
+      }
     },
+  },
 
-    Mutation: {
-        register: async(_, args) => {
-            try {
-                const { fullname, username, email, password, longitude, latitude } = args
-                if(!fullname) { throw new GraphQLError("Fullname is required")}
-                if(!username) { throw new GraphQLError("Username is required")}
-                if(!email) { throw new GraphQLError("Email is required")}
-                if(!password) { throw new GraphQLError("Password is required")}
-                if(!email) { throw new GraphQLError("Email is required")}
-                if(!longitude || !latitude) { throw new GraphQLError("Invalid location data")}
-            } catch(err) {
-                throw err
-            }
-        }
+  Mutation: {
+    register: async (_, args) => {
+      try {
+        const { fullname, username, email, password, longitude, latitude } = args
+        if (!fullname) { throw new GraphQLError("Fullname is required") }
+        if (!username) { throw new GraphQLError("Username is required") }
+        if (!email) { throw new GraphQLError("Email is required") }
+        if (!password) { throw new GraphQLError("Password is required") }
+        if (!email) { throw new GraphQLError("Email is required") }
+        if (!longitude || !latitude) { throw new GraphQLError("Invalid location data") }
+      } catch (err) {
+        throw err
+      }
     }
+  }
 }
 
 module.exports = { typeDefs, resolvers }

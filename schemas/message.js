@@ -1,31 +1,30 @@
-const typeDefs = `#graphql
+// const typeDefs = `#graphql
+//   type Conversation {
+//     id: ID
+//     message: ID
+//     conversationID: ID
+//     user1: ID
+//     createdAt: String
+//     updatedAt: String
+//   }
 
-  type Conversation {
-    id: ID
-    message: ID
-    conversationID: ID
-    user1: ID
-    createdAt: String
-    updatedAt: String
-  }
-
-  type Query {
+//   type Query {
     
-  }
+//   }
 
-  type Mutation {
+//   type Mutation {
 
-  }
-`;
+//   }
+// `;
 
-const resolvers = {
-    Query: {
+// const resolvers = {
+//     Query: {
 
-    },
+//     },
 
-    Mutation: {
+//     Mutation: {
 
-    }
-}
+//     }
+// }
 
-module.exports = { typeDefs, resolvers }
+// module.exports = { typeDefs, resolvers }
