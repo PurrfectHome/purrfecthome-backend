@@ -21,6 +21,22 @@ const typeDefs = `#graphql
     updatedAt: String
   }
 
+  type UserRegister {
+    id: ID
+    fullname: String
+    username: String
+    email: String
+    long: Float
+    lat: Float
+    accountType: String
+    createdAt: String
+    updatedAt: String
+  }
+
+  type UserLogin {
+    accessToken: String
+  }
+
   type Query {
     user: User
   }
@@ -33,11 +49,11 @@ const typeDefs = `#graphql
         password: String
         long: Float
         lat: Float
-    ): User
+    ): UserRegister
     login(
         username: String
         password: String
-    ): User
+    ): UserLogin
     loginGoogle(
         gToken: String
         lat: String
@@ -137,6 +153,7 @@ const resolvers = {
     },
 
     login: async (_, { username, password }) => {
+     
       try {
         if (!username || username == '') {
           throw new GraphQLError('Username is required', {
@@ -150,22 +167,22 @@ const resolvers = {
           });
         }
         const user = await User.getByUsername({ username });
-
         if (!user) {
           throw new GraphQLError('User is not exist', {
             extensions: { code: 'Not Found' },
           });
         }
-
+        
         const isMatch = comparePassword(password, user.password);
         if (!isMatch) {
           throw new GraphQLError('Invalid username/password', {
             extensions: { code: 'Unauthenticated' },
           });
         }
-
+        
         return { accessToken: signToken({ userId: user._id }) };
       } catch (err) {
+        console.log(err);
         throw err;
       }
     },
@@ -198,8 +215,6 @@ const resolvers = {
           },
         });
 
-        if (newUser) await User.create({ userId: user.id, name: user.username });
-        fullname, username, email, password, longitude, latitude
         return { accessToken: signToken({ userId: user.id }) };
       } catch (error) {
         throw new GraphQLError('Google login failed', {
