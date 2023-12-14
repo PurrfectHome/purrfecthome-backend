@@ -52,7 +52,7 @@ const typeDefs = `#graphql
 
 const resolvers = {
   Query: {
-    user: async (_, __, { authentication }) => {
+    post: async (_, __, { authentication }) => {
       try {
         // const { authorId } = await authentication();
         const authorId = 1;

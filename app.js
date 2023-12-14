@@ -11,6 +11,7 @@ const { typeDefs: userTypeDefs, resolvers: userResolvers } = require("./schemas/
 const { typeDefs: messageTypeDefs, resolvers: messageResolvers } = require("./schemas/message")
 const { typeDefs: conversationTypeDefs, resolvers: conversationResolvers } = require("./schemas/conversation")
 const { connect } = require('./config/mongo');
+const authentication = require('./middlewares/authentication');
 
 const server = new ApolloServer({
     typeDefs: [userTypeDefs, messageTypeDefs, conversationTypeDefs],
