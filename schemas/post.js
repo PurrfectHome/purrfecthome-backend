@@ -1,11 +1,9 @@
 const { GraphQLError } = require("graphql");
-const User = require("../models/user");
-const { emailFormat, passwordValidation } = require("../helpers/validation");
-const { hashPassword, comparePassword } = require("../helpers/bcryptjs");
-const { signToken } = require("../helpers/jwt");
-const { OAuth2Client } = require('google-auth-library');
-const client = new OAuth2Client();
+const Post = require("../models/post");
 
+const multer  = require('multer')
+const storage = multer.memoryStorage()
+const upload = multer({ storage })
 
 const typeDefs = `#graphql
   type Post {
@@ -17,36 +15,32 @@ const typeDefs = `#graphql
     gender: String
     color: String
     description: String
+    status: String
     photo: [Upload]
     createdAt: String
     updatedAt: String
   }
 
-  scalar Upload;
+  scalar Upload
 
   type Query {
     user: User
   }
 
   type Mutation {
-    register(
-        fullname: String
-        username: String
-        email: String
-        password: String
-        long: Float
-        lat: Float
-    ): UserRegister
-    login(
-        username: String
-        password: String
-    ): UserLogin
-    loginGoogle(
-        gToken: String
-        lat: String
-        long: String
-        password: String
-    ): User
+    addPost(
+      name: String
+      size: String
+      age: String
+      breed: String
+      gender: String
+      color: String
+      description: String
+      status: String
+      photo: [Upload]
+      long: Float
+      lat: Float
+    ): Post
   }
 `;
 
@@ -56,7 +50,7 @@ const resolvers = {
       try {
         // const { authorId } = await authentication();
         const authorId = 1;
-        const user = await User.getById({ id: new ObjectId(authorId) });
+        const user = await Post.getById({ id: new ObjectId(authorId) });
 
         return user;
       } catch (err) {
@@ -66,149 +60,60 @@ const resolvers = {
   },
 
   Mutation: {
-    register: async (_, args) => {
+    addPost: async(_, args, { authentication, authorization }) => {
+      upload.single("image")
+
       try {
-        const { fullname, username, email, password, long, lat } = args
-        if (!fullname) { 
-          throw new GraphQLError("Fullname is required", {
+        const { name, size, age, breed, gender, color, description, status, photo, long, lat } = args
+        if (!name) { 
+          throw new GraphQLError("Name is required", {
             extensions: { code: "Bad Request"}
           })
         }
 
-        if (!email) { 
-          throw new GraphQLError("Email is required", {
-            extensions: { code: 'Bad Request' }
+        if (!size) { 
+          throw new GraphQLError("Size is required", {
+            extensions: { code: "Bad Request"}
           })
         }
 
-        if (!password) { 
-          throw new GraphQLError("Password is required", {
-            extensions: { code: 'Bad Request' }
+        if (!breed) { 
+          throw new GraphQLError("Breed is required", {
+            extensions: { code: "Bad Request"}
           })
         }
 
-        if (!username) { 
-          throw new GraphQLError("Username is required", {
-            extensions: { code: 'Bad Request' }
+        if (!age) { 
+          throw new GraphQLError("Age is required", {
+            extensions: { code: "Bad Request"}
           })
         }
 
-        if (!long || !lat) {
-           throw new GraphQLError("Invalid location data", {
-            extensions: { code: "Bad Request" }
-           }) 
+        if (!gender) { 
+          throw new GraphQLError("Gender is required", {
+            extensions: { code: "Bad Request"}
+          })
         }
 
-        let emailExist = await User.getByEmail({ email });
-        if (emailExist) {
-          throw new GraphQLError('Email has been exist', {
-            extensions: { code: 'Bad Request' },
-          });
+        if (!color) { 
+          throw new GraphQLError("Color is required", {
+            extensions: { code: "Bad Request"}
+          })
         }
 
-        //validation unique username
-        let usernameExist = await User.getByUsername({ username });
-        if (usernameExist) {
-          throw new GraphQLError('Username has been exist', {
-            extensions: { code: 'Bad Request' },
-          });
+        if (!status) { 
+          throw new GraphQLError("Status is required", {
+            extensions: { code: "Bad Request"}
+          })
         }
-
-        //validation email format
-        const isEmail = emailFormat(email);
-        if (!isEmail) {
-          throw new GraphQLError('Use a valid Email format', {
-            extensions: { code: 'Bad Request' },
-          });
-        }
-
-        //validation password length
-        const isMinLength = passwordValidation(password);
-        if (!isMinLength) {
-          throw new GraphQLError('Password min 5 characters', {
-            extensions: { code: 'Bad Request' },
-          });
-        }
-
-        const hashedPassword = hashPassword(password);
-        const newUser = await User.create( fullname, username, email, hashedPassword, long, lat );
-        return newUser
-
-      } catch (err) {
+        
+        const newPost = await Post.create(name, size, age, breed, gender, color, description, status, photo, long, lat)
+        return newPost
+        
+      } catch(err) {
         throw err
       }
-    },
-
-    login: async (_, { username, password }) => {
-     
-      try {
-        if (!username || username == '') {
-          throw new GraphQLError('Username is required', {
-            extensions: { code: 'Bad Request' },
-          });
-        }
-
-        if (!password || password == '') {
-          throw new GraphQLError('Password is required', {
-            extensions: { code: 'Bad Request' },
-          });
-        }
-        const user = await User.getByUsername({ username });
-        if (!user) {
-          throw new GraphQLError('User is not exist', {
-            extensions: { code: 'Not Found' },
-          });
-        }
-        
-        const isMatch = comparePassword(password, user.password);
-        if (!isMatch) {
-          throw new GraphQLError('Invalid username/password', {
-            extensions: { code: 'Unauthenticated' },
-          });
-        }
-        
-        return { accessToken: signToken({ userId: user._id }) };
-      } catch (err) {
-        console.log(err);
-        throw err;
-      }
-    },
-
-
-    loginGoogle: async (_, { gToken, lat, long }) => {
-      try {
-        const ticket = await client.verifyIdToken({
-          idToken: gToken,
-          audience: process.env.G_CLIENT,
-        });
-
-        const payload = ticket.getPayload();
-        const [user, newUser] = await User.findOrCreate({
-          where: {
-            $or: [
-              { email: payload.email },
-              { username: payload.username, }
-            ]
-
-          },
-          defaults: {
-            fullname: payload.email,
-            email: payload.email,
-            username: payload.email,
-            password: String(Math.random() * 5),
-            long: long,
-            lat: lat,
-            accountType: 'google',
-          },
-        });
-
-        return { accessToken: signToken({ userId: user.id }) };
-      } catch (error) {
-        throw new GraphQLError('Google login failed', {
-          extensions: { code: 'Internal Server Error' },
-        });
-      }
-    },
+    }
   }
 }
 
