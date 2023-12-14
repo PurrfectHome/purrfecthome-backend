@@ -14,9 +14,10 @@ class User {
             updatedAt: new Date() 
         }
         
-        await getDB().collection("Users").insertOne(newUser)
-        delete newUser.id
-        delete newUser.password
+        const { insertedId } = await getDB().collection("Users").insertOne(newUser)
+        newUser.id = insertedId;
+        delete newUser.password;
+
         return newUser;
     }
 
@@ -96,4 +97,4 @@ class User {
     }
 }
 
-module.exports = User
+module.exports = User;

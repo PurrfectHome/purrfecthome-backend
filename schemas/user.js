@@ -21,6 +21,18 @@ const typeDefs = `#graphql
     updatedAt: String
   }
 
+  type UserRegister {
+    id: ID
+    fullname: String
+    username: String
+    email: String
+    long: Float
+    lat: Float
+    accountType: String
+    createdAt: String
+    updatedAt: String
+  }
+
   type UserLogin {
     accessToken: String
   }
@@ -37,7 +49,7 @@ const typeDefs = `#graphql
         password: String
         long: Float
         lat: Float
-    ): User
+    ): UserRegister
     login(
         username: String
         password: String
