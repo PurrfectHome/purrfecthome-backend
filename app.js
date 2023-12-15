@@ -10,12 +10,13 @@ const { startStandaloneServer } = require('@apollo/server/standalone');
 const { typeDefs: userTypeDefs, resolvers: userResolvers } = require("./schemas/user")
 const { typeDefs: messageTypeDefs, resolvers: messageResolvers } = require("./schemas/message")
 const { typeDefs: conversationTypeDefs, resolvers: conversationResolvers } = require("./schemas/conversation")
+const { typeDefs: postTypeDefs, resolvers: postResolvers } = require("./schemas/post")
 const { connect } = require('./config/mongo');
 const authentication = require('./middlewares/authentication');
 
 const server = new ApolloServer({
-    typeDefs: [userTypeDefs, messageTypeDefs, conversationTypeDefs],
-    resolvers: [userResolvers, messageResolvers, conversationResolvers]
+    typeDefs: [userTypeDefs, messageTypeDefs, conversationTypeDefs, postTypeDefs],
+    resolvers: [userResolvers, messageResolvers, conversationResolvers, postResolvers]
   });
   
   // Passing an ApolloServer instance to the `startStandaloneServer` function:
