@@ -27,6 +27,8 @@ class Post {
 
         return newPost
     }
+
+    static async
 }
 
 module.exports = Post
