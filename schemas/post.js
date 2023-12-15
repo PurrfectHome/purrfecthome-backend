@@ -1,10 +1,6 @@
 const { GraphQLError } = require("graphql");
 const Post = require("../models/post");
 
-const multer  = require('multer')
-const storage = multer.memoryStorage()
-const upload = multer({ storage })
-
 const typeDefs = `#graphql
   type Post {
     id: ID
@@ -16,12 +12,13 @@ const typeDefs = `#graphql
     color: String
     description: String
     status: String
-    photo: [Upload]
+    statusPrice: String
+    adopterId: ID
+    posterID: ID
+    photo: [String]
     createdAt: String
     updatedAt: String
   }
-
-  scalar Upload
 
   type Query {
     user: User
@@ -37,7 +34,10 @@ const typeDefs = `#graphql
       color: String
       description: String
       status: String
-      photo: [Upload]
+      statusPrice: String
+      adopterId: ID
+      posterId: ID
+      photo: [String]
       long: Float
       lat: Float
     ): Post
@@ -64,7 +64,7 @@ const resolvers = {
       upload.single("image")
 
       try {
-        const { name, size, age, breed, gender, color, description, status, photo, long, lat } = args
+        const { name, size, age, breed, gender, color, description, adopterId, statusPrice, photo, long, lat } = args
         if (!name) { 
           throw new GraphQLError("Name is required", {
             extensions: { code: "Bad Request"}
@@ -100,12 +100,24 @@ const resolvers = {
             extensions: { code: "Bad Request"}
           })
         }
+        
+        if (!long || !lat) {
+          throw new GraphQLError("Location is required", {
+           extensions: { code: "Bad Request" }
+          }) 
+       }
 
-        if (!status) { 
-          throw new GraphQLError("Status is required", {
-            extensions: { code: "Bad Request"}
-          })
+        if(!statusPrice) {
+          throw new GraphQLError("Please select a price status", {
+            extensions: { code: "Bad Request" }
+           }) 
         }
+
+        if (!photo.length) {
+          throw new GraphQLError("Image is required", {
+           extensions: { code: "Bad Request" }
+          }) 
+       }
         
         const newPost = await Post.create(name, size, age, breed, gender, color, description, status, photo, long, lat)
         return newPost

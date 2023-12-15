@@ -1,7 +1,7 @@
 const { getDB } = require("../config/mongo");
 
 class Post {
-    static async create(name, size, age, breed, gender, color, status, description, photo, long, lat) {
+    static async create(name, size, age, breed, gender, color, statusPrice, description, photo, long, lat) {
         const newPost = {
             name,
             size, 
@@ -9,9 +9,12 @@ class Post {
             breed, 
             gender,
             color,
-            status,
+            status: "available",
+            statusPrice,
             description,
             photo,
+            adopterId: "",
+            posterId,
             long,
             lat,
             accountType: "regular",
@@ -20,9 +23,9 @@ class Post {
         }
 
         const { insertedId } = await getDB().collection("Posts").insertOne(newPost)
-        newUser.id = insertedId
+        newPost.id = insertedId
 
-        return newUser
+        return newPost
     }
 }
 
