@@ -9,7 +9,7 @@ const client = new OAuth2Client();
 
 const typeDefs = `#graphql
   type Post {
-    id: ID
+    _id: ID
     name: String
     size: String
     age: String
@@ -29,7 +29,8 @@ const typeDefs = `#graphql
   }
 
   type Query {
-    postsByRadius: User
+    postsByRadius: [Post]
+    postsById(PostId: String): Post
   }
 
   type UpdateAdopterRes {
@@ -78,6 +79,16 @@ const resolvers = {
         const { authorId } = await authentication();
         const posts = await Post.getByRadius({ lat, long });
         return posts;
+      } catch (err) {
+        throw err;
+      }
+    },
+
+    postsById: async (_, { PostId }, { authentication }) => {
+      try {
+        const { authorId } = await authentication();
+        const post = await Post.getById({ PostId });
+        return post;
       } catch (err) {
         throw err;
       }
