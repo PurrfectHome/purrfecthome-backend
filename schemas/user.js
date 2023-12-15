@@ -4,6 +4,7 @@ const { emailFormat, passwordValidation } = require("../helpers/validation");
 const { hashPassword, comparePassword } = require("../helpers/bcryptjs");
 const { signToken } = require("../helpers/jwt");
 const { OAuth2Client } = require('google-auth-library');
+const { getCity } = require("../helpers/getCity");
 const client = new OAuth2Client();
 
 
@@ -53,6 +54,8 @@ const typeDefs = `#graphql
     login(
         username: String
         password: String
+        long: Float
+        lat: Float
     ): UserLogin
     loginGoogle(
         gToken: String
@@ -82,34 +85,34 @@ const resolvers = {
     register: async (_, args) => {
       try {
         const { fullname, username, email, password, long, lat } = args
-        if (!fullname) { 
+        if (!fullname) {
           throw new GraphQLError("Fullname is required", {
-            extensions: { code: "Bad Request"}
+            extensions: { code: "Bad Request" }
           })
         }
 
-        if (!email) { 
+        if (!email) {
           throw new GraphQLError("Email is required", {
             extensions: { code: 'Bad Request' }
           })
         }
 
-        if (!password) { 
+        if (!password) {
           throw new GraphQLError("Password is required", {
             extensions: { code: 'Bad Request' }
           })
         }
 
-        if (!username) { 
+        if (!username) {
           throw new GraphQLError("Username is required", {
             extensions: { code: 'Bad Request' }
           })
         }
 
         if (!long || !lat) {
-           throw new GraphQLError("Invalid location data", {
+          throw new GraphQLError("Invalid location data", {
             extensions: { code: "Bad Request" }
-           }) 
+          })
         }
 
         let emailExist = await User.getByEmail({ email });
@@ -144,7 +147,7 @@ const resolvers = {
         }
 
         const hashedPassword = hashPassword(password);
-        const newUser = await User.create( fullname, username, email, hashedPassword, long, lat );
+        const newUser = await User.create(fullname, username, email, hashedPassword, long, lat);
         return newUser
 
       } catch (err) {
@@ -152,8 +155,7 @@ const resolvers = {
       }
     },
 
-    login: async (_, { username, password }) => {
-     
+    login: async (_, { username, password, long, lat }) => {
       try {
         if (!username || username == '') {
           throw new GraphQLError('Username is required', {
@@ -166,21 +168,24 @@ const resolvers = {
             extensions: { code: 'Bad Request' },
           });
         }
+
         const user = await User.getByUsername({ username });
         if (!user) {
           throw new GraphQLError('User is not exist', {
             extensions: { code: 'Not Found' },
           });
         }
-        
+
         const isMatch = comparePassword(password, user.password);
         if (!isMatch) {
           throw new GraphQLError('Invalid username/password', {
             extensions: { code: 'Unauthenticated' },
           });
         }
-        
-        return { accessToken: signToken({ userId: user._id }) };
+        const currentCity = await getCity(long, lat);
+        await User.patchCurrentLoc({ currentLoc: currentCity, userId: user._id });
+       
+        return { accessToken: signToken({ userId: user._id, long, lat }) };
       } catch (err) {
         console.log(err);
         throw err;

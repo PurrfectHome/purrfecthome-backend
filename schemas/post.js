@@ -1,4 +1,11 @@
 const { GraphQLError } = require("graphql");
+const User = require("../models/user");
+const { emailFormat, passwordValidation } = require("../helpers/validation");
+const { hashPassword, comparePassword } = require("../helpers/bcryptjs");
+const { signToken } = require("../helpers/jwt");
+const { OAuth2Client } = require('google-auth-library');
+const Post2 = require("../models/post2");
+const client = new OAuth2Client();
 const Post = require("../models/post");
 
 const typeDefs = `#graphql
@@ -11,6 +18,8 @@ const typeDefs = `#graphql
     gender: String
     color: String
     description: String
+    long: Float
+    lat: Float
     status: String
     statusPrice: String
     adopterId: ID
@@ -22,6 +31,7 @@ const typeDefs = `#graphql
 
   type Query {
     post: Post
+
   }
 
   type Mutation {
@@ -46,13 +56,13 @@ const typeDefs = `#graphql
 
 const resolvers = {
   Query: {
-    post: async (_, __, { authentication }) => {
-      try {
-        // const { authorId } = await authentication();
-        const authorId = 1;
-        const post = await Post.getById({ id: new ObjectId(authorId) });
 
-        return post;
+    post: async (_, {long, lat}, { authentication }) => {
+      try {
+        const { authorId } = await authentication();
+
+        const posts = await Post2.getByRadius({ lat, long });
+        return posts;
       } catch (err) {
         throw err;
       }
