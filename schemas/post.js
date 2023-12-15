@@ -21,7 +21,7 @@ const typeDefs = `#graphql
   }
 
   type Query {
-    user: User
+    post: Post
   }
 
   type Mutation {
@@ -46,13 +46,13 @@ const typeDefs = `#graphql
 
 const resolvers = {
   Query: {
-    user: async (_, __, { authentication }) => {
+    post: async (_, __, { authentication }) => {
       try {
         // const { authorId } = await authentication();
         const authorId = 1;
-        const user = await Post.getById({ id: new ObjectId(authorId) });
+        const post = await Post.getById({ id: new ObjectId(authorId) });
 
-        return user;
+        return post;
       } catch (err) {
         throw err;
       }
@@ -64,7 +64,7 @@ const resolvers = {
       upload.single("image")
 
       try {
-        const { name, size, age, breed, gender, color, description, adopterId, statusPrice, photo, long, lat } = args
+        const { name, size, age, breed, gender, color, description, statusPrice, photo, long, lat } = args
         if (!name) { 
           throw new GraphQLError("Name is required", {
             extensions: { code: "Bad Request"}
@@ -119,7 +119,7 @@ const resolvers = {
           }) 
        }
         
-        const newPost = await Post.create(name, size, age, breed, gender, color, description, status, photo, long, lat)
+        const newPost = await Post.create(name, size, age, breed, gender, color, description, statusPrice, photo, long, lat)
         return newPost
         
       } catch(err) {
