@@ -1,20 +1,21 @@
+const { ObjectId } = require("mongodb");
 const { getDB } = require("../config/mongo");
 
 class User {
-      static async create(fullname, username, email, hashedPassword, long, lat) {
+    static async create(fullname, username, email, hashedPassword, long, lat) {
         const newUser = {
             fullname,
-            username, 
-            email, 
-            password: hashedPassword, 
-            long, 
+            username,
+            email,
+            password: hashedPassword,
+            long,
             lat,
             accountType: "regular",
             createdAt: new Date(),
-            updatedAt: new Date() 
+            updatedAt: new Date()
         }
-        
-        const { insertedId } = await getDB().collection("Users").insertOne(newUser)
+
+        const { insertedId } = await getDB().collection("Users").insertOne(newUser);
         newUser.id = insertedId;
         delete newUser.password;
 
@@ -95,6 +96,13 @@ class User {
 
         return user[0];
     }
+
+    static async patchCurrentLoc({ currentLoc, userId }) {
+        await getDB().collection("Users").updateOne(
+            { _id: new ObjectId(userId) },
+            { $set: { currentLoc } }
+        );
+    }   
 }
 
 module.exports = User;
