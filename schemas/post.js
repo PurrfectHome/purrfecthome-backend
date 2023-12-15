@@ -6,7 +6,6 @@ const { signToken } = require("../helpers/jwt");
 const { OAuth2Client } = require('google-auth-library');
 const Post = require("../models/post");
 const client = new OAuth2Client();
-const Post = require("../models/post");
 
 const typeDefs = `#graphql
   type Post {

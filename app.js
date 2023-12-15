@@ -11,7 +11,6 @@ const { typeDefs: userTypeDefs, resolvers: userResolvers } = require("./schemas/
 const { typeDefs: postTypeDefs, resolvers: postResolvers } = require("./schemas/post")
 const { typeDefs: messageTypeDefs, resolvers: messageResolvers } = require("./schemas/message")
 const { typeDefs: conversationTypeDefs, resolvers: conversationResolvers } = require("./schemas/conversation")
-const { typeDefs: postTypeDefs, resolvers: postResolvers } = require("./schemas/post")
 const { connect } = require('./config/mongo');
 const authentication = require('./middlewares/authentication');
 
