@@ -42,7 +42,8 @@ async function postsSeeding() {
             const ranIdx2 = Math.floor(Math.random() * 10);
             el.PosterId = new ObjectId(users[ranIdx1]._id);
             el.createdAt = el.updatedAt = new Date();
-            if ( ranIdx2 < 2) el.AdopterId = new ObjectId(users[ranIdx2]._id);
+            el.status = "available"
+            if ( ranIdx2 < 2) {el.AdopterId = new ObjectId(users[ranIdx2]._id); el.status = "adopted"};
             
             return el;
         });
