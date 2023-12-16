@@ -74,7 +74,7 @@ class Post {
         return deletePost;
     }
 
-    static async create(name, size, age, breed, gender, color, description, information, photo, long, lat, PosterId, statusPrice) {
+    static async create(name, size, age, breed, gender, color, description, InformationId, photo, long, lat, PosterId, statusPrice) {
         const newPost = {
             name,
             size,
@@ -85,10 +85,10 @@ class Post {
             status: "available",
             statusPrice,
             description,
-            information,
+            InformationId,
             photo,
             AdopterId: "",
-            PosterId,
+            PosterId: new ObjectId(PosterId),
             long,
             lat,
             accountType: "regular",
@@ -96,10 +96,9 @@ class Post {
             updatedAt: new Date()
         }
 
-        const { insertedId } = await getDB().collection("Posts").insertOne(newPost)
-        newPost.id = insertedId
+        await getDB().collection("Posts").insertOne(newPost);
 
-        return newPost
+        return newPost;
     }
 
     static async edit(PostId, name, size, age, breed, gender, color, statusPrice, description, photo, long, lat) {

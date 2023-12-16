@@ -17,17 +17,16 @@ const authentication = async (req) => {
                 extensions: { code: 'Unauthenticated' },
             });
         }
-        const { userId } = verifyToken(accessToken);
-        const user = await User.getById({ id: new ObjectId(userId) });
+        const { UserId } = verifyToken(accessToken);
+        const user = await User.getById({ id: new ObjectId(UserId) });
         if (!user) {
             throw new GraphQLError('Invalid Token', {
                 extensions: { code: 'Unauthenticated' },
             });
         }
 
-        return { authorId: userId };
+        return { UserId };
     } catch (error) {
-        console.log(error);
         throw error;
     }
 }

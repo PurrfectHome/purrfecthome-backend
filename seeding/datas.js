@@ -116,7 +116,7 @@ const postsSeed = [
   {
     "name": "Mittens",
     "size": "small",
-    "age": "kitten",
+    "age": "young",
     "breed": "Maine Coon",
     "gender": "male",
     "color": "gray",
@@ -151,7 +151,7 @@ const postsSeed = [
   },
   {
     "name": "Fluffy",
-    "size": "big",
+    "size": "large",
     "age": "old",
     "breed": "Persian",
     "gender": "male",
@@ -170,7 +170,7 @@ const postsSeed = [
   {
     "name": "Luna",
     "size": "medium",
-    "age": "kitten",
+    "age": "young",
     "breed": "British Shorthair",
     "gender": "female",
     "color": "blue",
@@ -205,7 +205,7 @@ const postsSeed = [
   },
   {
     "name": "Cleo",
-    "size": "big",
+    "size": "large",
     "age": "old",
     "breed": "Ragdoll",
     "gender": "female",
@@ -224,7 +224,7 @@ const postsSeed = [
   {
     "name": "Sphinx",
     "size": "medium",
-    "age": "kitten",
+    "age": "young",
     "breed": "Sphynx",
     "gender": "male",
     "color": "pink",
@@ -241,7 +241,7 @@ const postsSeed = [
   },
   {
     "name": "Misty",
-    "size": "big",
+    "size": "large",
     "age": "adult",
     "breed": "Abyssinian",
     "gender": "female",
@@ -260,7 +260,7 @@ const postsSeed = [
   {
     "name": "Oreo",
     "size": "small",
-    "age": "kitten",
+    "age": "young",
     "breed": "Scottish Fold",
     "gender": "male",
     "color": "black and white",
@@ -295,7 +295,7 @@ const postsSeed = [
   },
   {
     "name": "Siber",
-    "size": "big",
+    "size": "large",
     "age": "old",
     "breed": "Siberian",
     "gender": "male",
@@ -314,7 +314,7 @@ const postsSeed = [
   {
     "name": "Whiskey",
     "size": "medium",
-    "age": "kitten",
+    "age": "young",
     "breed": "Exotic Shorthair",
     "gender": "male",
     "color": "silver",

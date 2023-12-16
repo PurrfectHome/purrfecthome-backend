@@ -6,6 +6,7 @@ const { signToken } = require("../helpers/jwt");
 const { OAuth2Client } = require('google-auth-library');
 const Post = require("../models/post");
 const { chatAI } = require("../helpers/openai");
+const Information = require("../models/information");
 const client = new OAuth2Client();
 
 const typeDefs = `#graphql
@@ -219,45 +220,25 @@ const resolvers = {
           })
         }
 
+   
 
-        const question = `
-        saya mempunyai ras ${breed} berikan saya informasi terkait pemeliharaannya seperti:
-        makanan,  kesehatan, kebersihan, aktivitas, tempat beristirahat
-        berikan dalam format json dengan format seperti di bawah ini:
+        const informationData = await Information.getByBreed(breed);
+        let InformationId;
+        if (!informationData) {
+          const generateInfo = await chatAI(breed);
+          const descriptionInfo = JSON.parse(generateInfo);
+          
+          const newInformation = await Information.create(breed, descriptionInfo);
+          InformationId = newInformation._id;
+        }else {
+          InformationId = informationData._id;
+        }
 
-          {
-           
-              "makanan": {
-                "deskripsi": "Beri makanan kucing berkualitas dengan kandungan nutrisi yang sesuai.",
-                "emoji": "🍽️"
-              },
-              "kesehatan": {
-                "deskripsi": "Lakukan kunjungan rutin ke dokter hewan, berikan vaksinasi, dan perhatikan tanda-tanda kesehatan.",
-                "emoji": "👩‍⚕️"
-              },
-              "kebersihan": {
-                "deskripsi": "Sediakan kotak pasir bersih, lakukan pembersihan rutin, dan perhatikan kebersihan bulu.",
-                "emoji": "🚿"
-              },
-              "aktivitas": {
-                "deskripsi": "Stimulasi aktivitas fisik dan mental dengan mainan dan interaksi yang berkualitas.",
-                "emoji": "🎾"
-              },
-              "tempat_beristirahat": {
-                "deskripsi": "Sediakan tempat tidur yang nyaman dan tenang untuk istirahat kucing.",
-                "emoji": "😴"
-              }
-            
-          }
-
-
-        berikan juga emoji yang mewakili setiap informasinya dan berikan deskripsi yang lebih lengkap dan informatif. cukup berikan jsonnya saja tidak perlu ada respons deskripsi apa pun selain respons dalam bentuk json
-        `;
-        const questions = await chatAI(question);
-        const information = JSON.parse(questions);
-        const newPost = await Post.create(name, size, age, breed, gender, color, description, information, photo, long, lat, UserId, statusPrice)
+        const newPost = await Post.create(name, size, age, breed, gender, color, description, InformationId, photo, long, lat, UserId, statusPrice);
+        
         return { message: `successfully add post with cat's name : ${newPost.name}`, code: "Success" };
       } catch (err) {
+        console.log(err);
         throw err
       }
     },

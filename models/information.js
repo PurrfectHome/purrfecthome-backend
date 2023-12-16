@@ -16,8 +16,8 @@ class Information {
             updatedAt: new Date()
         }
 
-        const { insertedId } = await getDB().collection("Users").insertOne(newUser);
-        newInformation.id = insertedId;
+        await getDB().collection("Informations").insertOne(newInformation);
+        // newInformation.id = insertedId;
 
         return newInformation;
     }
