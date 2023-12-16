@@ -4,13 +4,12 @@ const { emailFormat, passwordValidation } = require("../helpers/validation");
 const { hashPassword, comparePassword } = require("../helpers/bcryptjs");
 const { signToken } = require("../helpers/jwt");
 const { OAuth2Client } = require('google-auth-library');
-const Post2 = require("../models/post2");
-const client = new OAuth2Client();
 const Post = require("../models/post");
+const client = new OAuth2Client();
 
 const typeDefs = `#graphql
   type Post {
-    id: ID
+    _id: ID
     name: String
     size: String
     age: String
@@ -20,17 +19,28 @@ const typeDefs = `#graphql
     description: String
     long: Float
     lat: Float
+    AdopterId: ID
+    PosterId: ID
     status: String
     statusPrice: String
-    adopterId: ID
-    posterID: ID
     photo: [String]
     createdAt: String
     updatedAt: String
   }
 
   type Query {
-    post: Post
+    postsByRadius: [Post]
+    postsById(PostId: String): Post
+  }
+
+  type UpdateAdopterRes {
+    message: String
+    code: String
+  }
+
+  type DeletePostRes {
+    message: String
+    code: String
   }
 
   type Mutation {
@@ -50,17 +60,35 @@ const typeDefs = `#graphql
       long: Float
       lat: Float
     ): Post
+
+    UpdateAdopter(
+        AdopterId: ID
+        PostId: ID
+    ): UpdateAdopterRes
+    
+    DeletePost(
+        PostId: ID
+    ): DeletePostRes
   }
 `;
 
 const resolvers = {
   Query: {
-    post: async (_, {long, lat}, { authentication }) => {
+    postsByRadius: async (_, { long, lat }, { authentication }) => {
       try {
         const { authorId } = await authentication();
-
-        const posts = await Post2.getByRadius({ lat, long });
+        const posts = await Post.getByRadius({ lat, long });
         return posts;
+      } catch (err) {
+        throw err;
+      }
+    },
+
+    postsById: async (_, { PostId }, { authentication }) => {
+      try {
+        const { authorId } = await authentication();
+        const post = await Post.getById({ PostId });
+        return post;
       } catch (err) {
         throw err;
       }
@@ -68,70 +96,111 @@ const resolvers = {
   },
 
   Mutation: {
-    addPost: async(_, args, { authentication, authorization }) => {
+    UpdateAdopter: async (_, { AdopterId, PostId }, { authentication }) => {
+      try {
+        await authentication();
+        const update = await Post.updateAdopter({ AdopterId, PostId });
+
+        if (update.matchedCount === 0) {
+          throw new GraphQLError('Post/Adopter`s data is not found', {
+            extensions: { message: "Post/Adopter`s data is not found", code: 'Not Found' },
+          });
+        };
+
+        return { message: "successfully change status", code: "Success" };
+      } catch (error) {
+        throw error;
+      }
+    },
+
+    addPost: async (_, args, { authentication, authorization }) => {
       upload.single("image")
 
       try {
-        const { name, size, age, breed, gender, color, description, statusPrice, photo, long, lat } = args
-        if (!name) { 
+        const { name, size, age, breed, gender, color, description, adopterId, statusPrice, photo, long, lat } = args
+        if (!name) {
           throw new GraphQLError("Name is required", {
-            extensions: { code: "Bad Request"}
+            extensions: { code: "Bad Request" }
           })
         }
 
-        if (!size) { 
+        if (!size) {
           throw new GraphQLError("Size is required", {
-            extensions: { code: "Bad Request"}
+            extensions: { code: "Bad Request" }
           })
         }
 
-        if (!breed) { 
+        if (!breed) {
           throw new GraphQLError("Breed is required", {
-            extensions: { code: "Bad Request"}
+            extensions: { code: "Bad Request" }
           })
         }
 
-        if (!age) { 
+        if (!age) {
           throw new GraphQLError("Age is required", {
-            extensions: { code: "Bad Request"}
+            extensions: { code: "Bad Request" }
           })
         }
 
-        if (!gender) { 
+        if (!gender) {
           throw new GraphQLError("Gender is required", {
-            extensions: { code: "Bad Request"}
+            extensions: { code: "Bad Request" }
           })
         }
 
-        if (!color) { 
+        if (!color) {
           throw new GraphQLError("Color is required", {
-            extensions: { code: "Bad Request"}
+            extensions: { code: "Bad Request" }
           })
         }
-        
+
         if (!long || !lat) {
           throw new GraphQLError("Location is required", {
-           extensions: { code: "Bad Request" }
-          }) 
-       }
+            extensions: { code: "Bad Request" }
+          })
+        }
 
-        if(!statusPrice) {
+        if (!statusPrice) {
           throw new GraphQLError("Please select a price status", {
             extensions: { code: "Bad Request" }
-           }) 
+          })
         }
 
         if (!photo.length) {
           throw new GraphQLError("Image is required", {
-           extensions: { code: "Bad Request" }
-          }) 
-       }
-        
-        const newPost = await Post.create(name, size, age, breed, gender, color, description, statusPrice, photo, long, lat)
+            extensions: { code: "Bad Request" }
+          })
+        }
+
+        const newPost = await Post.create(name, size, age, breed, gender, color, description, status, photo, long, lat)
         return newPost
-        
-      } catch(err) {
+
+      } catch (err) {
         throw err
+      }
+    },
+
+    DeletePost: async (_, { PostId }, { authentication }) => {
+      try {
+        await authentication();
+
+        const post = await Post.getById({ PostId });
+        if (post.status !== 'available') {
+          throw new GraphQLError('Cat has been already adopted', {
+                extensions: { message: "Cat has been already adopted", code: 'Bad Request' },
+              });
+        }
+
+        const deletePost = await Post.delete({ PostId });
+        if (deletePost.deletedCount === 0) {
+          throw new GraphQLError('Post Id is not found', {
+            extensions: { message: "Post is not found", code: 'Not Found' },
+          });
+        };
+
+        return { message: "successfully delete post", code: "Success" };
+      } catch (err) {
+        throw err;
       }
     }
   }

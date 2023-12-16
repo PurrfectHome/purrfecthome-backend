@@ -191,8 +191,7 @@ const resolvers = {
         throw err;
       }
     },
-
-
+    
     loginGoogle: async (_, { gToken, lat, long }) => {
       try {
         const ticket = await client.verifyIdToken({

@@ -22,6 +22,13 @@ class User {
         return newUser;
     }
 
+    static async getAll() {
+        const Users = getDB().collection("Users");
+        const user = await Users.find();
+
+        return user;
+    }
+
     static async getByUsername({ username }) {
         const Users = getDB().collection("Users");
         const user = await Users.findOne({ username });
