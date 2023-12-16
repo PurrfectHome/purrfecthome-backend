@@ -57,7 +57,7 @@ class Post {
         return deletePost;
     }
 
-    static async create(name, size, age, breed, gender, color, statusPrice, description, photo, long, lat) {
+    static async create(name, size, age, breed, gender, color, description, information, photo, long, lat, PosterId, statusPrice) {
         const newPost = {
             name,
             size,
@@ -68,9 +68,10 @@ class Post {
             status: "available",
             statusPrice,
             description,
+            information,
             photo,
-            adopterId: "",
-            posterId,
+            AdopterId: "",
+            PosterId,
             long,
             lat,
             accountType: "regular",

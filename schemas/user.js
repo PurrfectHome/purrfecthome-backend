@@ -4,7 +4,7 @@ const { emailFormat, passwordValidation } = require("../helpers/validation");
 const { hashPassword, comparePassword } = require("../helpers/bcryptjs");
 const { signToken } = require("../helpers/jwt");
 const { OAuth2Client } = require('google-auth-library');
-const { getCity } = require("../helpers/getCity");
+const { getCity } = require("../helpers/gmapsapi");
 const client = new OAuth2Client();
 
 
@@ -23,15 +23,8 @@ const typeDefs = `#graphql
   }
 
   type UserRegister {
-    id: ID
-    fullname: String
-    username: String
-    email: String
-    long: Float
-    lat: Float
-    accountType: String
-    createdAt: String
-    updatedAt: String
+    message: String
+    code: String
   }
 
   type UserLogin {
@@ -48,19 +41,13 @@ const typeDefs = `#graphql
         username: String
         email: String
         password: String
-        long: Float
-        lat: Float
     ): UserRegister
     login(
         username: String
         password: String
-        long: Float
-        lat: Float
     ): UserLogin
     loginGoogle(
         gToken: String
-        lat: String
-        long: String
         password: String
     ): User
   }
@@ -83,7 +70,7 @@ const resolvers = {
   Mutation: {
     register: async (_, args) => {
       try {
-        const { fullname, username, email, password, long, lat } = args
+        const { fullname, username, email, password } = args
         if (!fullname) {
           throw new GraphQLError("Fullname is required", {
             extensions: { code: "Bad Request" }
@@ -105,12 +92,6 @@ const resolvers = {
         if (!username) {
           throw new GraphQLError("Username is required", {
             extensions: { code: 'Bad Request' }
-          })
-        }
-
-        if (!long || !lat) {
-          throw new GraphQLError("Invalid location data", {
-            extensions: { code: "Bad Request" }
           })
         }
 
@@ -146,15 +127,15 @@ const resolvers = {
         }
 
         const hashedPassword = hashPassword(password);
-        const newUser = await User.create(fullname, username, email, hashedPassword, long, lat);
-        return newUser
+        const newUser = await User.create(fullname, username, email, hashedPassword);
 
+        return { message: `successfully registered as ${newUser.username}`, code: "Success" };
       } catch (err) {
         throw err
       }
     },
 
-    login: async (_, { username, password, long, lat }) => {
+    login: async (_, { username, password }) => {
       try {
         if (!username || username == '') {
           throw new GraphQLError('Username is required', {
@@ -181,17 +162,15 @@ const resolvers = {
             extensions: { code: 'Unauthenticated' },
           });
         }
-        const currentCity = await getCity(long, lat);
-        await User.patchCurrentLoc({ currentLoc: currentCity, userId: user._id });
        
-        return { accessToken: signToken({ userId: user._id, long, lat }) };
+        return { accessToken: signToken({ UserId: user._id }) };
       } catch (err) {
         console.log(err);
         throw err;
       }
     },
     
-    loginGoogle: async (_, { gToken, lat, long }) => {
+    loginGoogle: async (_, { gToken }) => {
       try {
         const ticket = await client.verifyIdToken({
           idToken: gToken,
@@ -212,8 +191,6 @@ const resolvers = {
             email: payload.email,
             username: payload.email,
             password: String(Math.random() * 5),
-            long: long,
-            lat: lat,
             accountType: 'google',
           },
         });
