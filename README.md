@@ -27,7 +27,7 @@ Purrfecthome-backend is the backend repository for the PurrfectHome applicationâ
       - [ ] Generate treatment suggestion from openai
     - [ ] Edit Post Screen
       - [x] GET /posts/:id (by Id) (testing)
-      - [ ] PUT /posts/:id
+      - [x] PUT /posts/:id (authorization)
     - [ ] Post Detail Screen
      - [x] GET /posts/:id (by id) â†’ include treatment suggestion from openai (testing + gabungin query treatment suggestion)
     - [ ] Adoptable Post Screen

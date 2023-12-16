@@ -22,6 +22,7 @@ const typeDefs = `#graphql
     lat: Float
     AdopterId: ID
     PosterId: ID
+    InformationId: ID
     status: String
     statusPrice: String
     photo: [String]
@@ -30,7 +31,7 @@ const typeDefs = `#graphql
   }
 
   type Query {
-    postsByRadius: [Post]
+    postsByRadius(breed: String, page: Int): [Post]
     postsById(PostId: String): Post
     postsByPosterId(PosterId: String): [Post]
     postsByAdopterId(AdopterId: String): [Post]
@@ -85,8 +86,8 @@ const typeDefs = `#graphql
       description: String
       status: String
       statusPrice: String
-      adopterId: ID
-      posterId: ID
+      AdopterId: ID
+      PosterId: ID
       photo: [String]
       long: Float
       lat: Float
@@ -96,7 +97,7 @@ const typeDefs = `#graphql
 
 const resolvers = {
   Query: {
-    postsByRadius: async (_, { long, lat }, { authentication }) => {
+    postsByRadius: async (_, { long, lat, breed, page }, { authentication }) => {
       try {
         const { userId } = await authentication();
         const currentCity = await getCity(long, lat);
