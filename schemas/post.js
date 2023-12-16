@@ -22,6 +22,7 @@ const typeDefs = `#graphql
     lat: Float
     AdopterId: ID
     PosterId: ID
+    InformationId: ID
     status: String
     statusPrice: String
     photo: [String]
