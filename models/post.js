@@ -69,8 +69,8 @@ class Post {
             statusPrice,
             description,
             photo,
-            adopterId: "",
-            posterId,
+            AdopterId: "",
+            PosterId: "",
             long,
             lat,
             accountType: "regular",
@@ -83,6 +83,31 @@ class Post {
 
         return newPost
     }
+
+    static async edit(PostId, name, size, age, breed, gender, color, statusPrice, description, photo, long, lat) {
+        const filter = { _id: new ObjectId(PostId) };
+        const update = {
+            updatedAt: new Date()
+        };
+
+        if(name) update.name = name
+        if (size) update.size = size;
+        if (age) update.age = age;
+        if (breed) update.breed = breed;
+        if (gender) update.gender = gender;
+        if (color) update.color = color;
+        if (statusPrice) update.statusPrice = statusPrice;
+        if (description) update.description = description;
+        if (photo) update.photo = photo;
+        if (long) update.long = long;
+        if (lat) update.lat = lat;
+        
+        const options = { returnDocument: 'after' }; // This option returns the updated document
+    
+        const updatedPost = await getDB().collection('Posts').findOneAndUpdate(filter, { $set: update }, options);
+
+        return updatedPost;
+      }
 }
 
 module.exports = Post;
