@@ -101,7 +101,7 @@ class Post {
         return newPost;
     }
 
-    static async edit(PostId, name, size, age, breed, gender, color, statusPrice, description, photo, long, lat) {
+    static async edit(PostId, name, size, age, breed, gender, color, statusPrice, description, photo, InformationId) {
         const filter = { _id: new ObjectId(PostId) };
         const update = {
             updatedAt: new Date()
@@ -116,8 +116,9 @@ class Post {
         if (statusPrice) update.statusPrice = statusPrice;
         if (description) update.description = description;
         if (photo) update.photo = photo;
-        if (long) update.long = long;
-        if (lat) update.lat = lat;
+        if (InformationId) update.InformationId = new ObjectId(InformationId);
+        // if (long) update.long = long;
+        // if (lat) update.lat = lat;
         
         const options = { returnDocument: 'after' }; // This option returns the updated document
     

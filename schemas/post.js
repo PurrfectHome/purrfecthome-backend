@@ -87,11 +87,11 @@ const typeDefs = `#graphql
       description: String
       status: String
       statusPrice: String
-      AdopterId: ID
-      PosterId: ID
+      # AdopterId: ID
+      # PosterId: ID
       photo: [String]
-      long: Float
-      lat: Float
+      # long: Float
+      # lat: Float
     ): Post
   }
 `;
@@ -220,8 +220,6 @@ const resolvers = {
           })
         }
 
-   
-
         const informationData = await Information.getByBreed(breed);
         let InformationId;
         if (!informationData) {
@@ -235,7 +233,7 @@ const resolvers = {
         }
 
         const newPost = await Post.create(name, size, age, breed, gender, color, description, InformationId, photo, long, lat, UserId, statusPrice);
-        
+
         return { message: `successfully add post with cat's name : ${newPost.name}`, code: "Success" };
       } catch (err) {
         console.log(err);
@@ -271,8 +269,21 @@ const resolvers = {
       await authentication()
 
       try {
-        const { PostId, name, size, age, breed, gender, color, description, statusPrice, photo, long, lat } = args
-        const editPost = await Post.edit(PostId, name, size, age, breed, gender, color, description, statusPrice, photo, long, lat)
+        const { PostId, name, size, age, breed, gender, color, description, statusPrice, photo} = args
+
+        const informationData = await Information.getByBreed(breed);
+        let InformationId;
+        if (!informationData) {
+          const generateInfo = await chatAI(breed);
+          const descriptionInfo = JSON.parse(generateInfo);
+          
+          const newInformation = await Information.create(breed, descriptionInfo);
+          InformationId = newInformation._id;
+        }else {
+          InformationId = informationData._id;
+        }
+
+        const editPost = await Post.edit(PostId, name, size, age, breed, gender, color, description, statusPrice, photo, InformationId)
         return editPost
 
       } catch(err) {
