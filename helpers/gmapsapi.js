@@ -9,7 +9,6 @@ const getCity = async (long, lat) => {
 
         return data.results[0].address_components[4].long_name; 
     } catch (error) {
-        console.error('Error:', error);
         return { error: error.message };
     }
 };

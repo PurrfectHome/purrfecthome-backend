@@ -5,6 +5,7 @@ const { hashPassword, comparePassword } = require("../helpers/bcryptjs");
 const { signToken } = require("../helpers/jwt");
 const { OAuth2Client } = require('google-auth-library');
 const Post = require("../models/post");
+const { chatAI } = require("../helpers/openai");
 const client = new OAuth2Client();
 
 const typeDefs = `#graphql
@@ -44,6 +45,10 @@ const typeDefs = `#graphql
     message: String
     code: String
   }
+  type PostResponse {
+    message: String
+    code: String
+  }
 
   type Mutation {
     addPost(
@@ -54,14 +59,11 @@ const typeDefs = `#graphql
       gender: String
       color: String
       description: String
-      status: String
       statusPrice: String
-      adopterId: ID
-      posterId: ID
       photo: [String]
       long: Float
       lat: Float
-    ): Post
+    ): PostResponse
 
     UpdateAdopter(
         AdopterId: ID
@@ -96,7 +98,10 @@ const resolvers = {
   Query: {
     postsByRadius: async (_, { long, lat }, { authentication }) => {
       try {
-        const { authorId } = await authentication();
+        const { userId } = await authentication();
+        const currentCity = await getCity(long, lat);
+        await User.patchCurrentLoc({ currentLoc: currentCity, userId });
+
         const posts = await Post.getByRadius({ lat, long });
         return posts;
       } catch (err) {
@@ -106,7 +111,7 @@ const resolvers = {
 
     postsById: async (_, { PostId }, { authentication }) => {
       try {
-        const { authorId } = await authentication();
+        const { UserId } = await authentication();
         const post = await Post.getById({ PostId });
         return post;
       } catch (err) {
@@ -153,11 +158,12 @@ const resolvers = {
       }
     },
 
-    addPost: async (_, args, { authentication }) => {
-      await authentication();
 
+    addPost: async (_, args, { authentication }) => {
+      const { UserId } = await authentication();
       try {
         const { name, size, age, breed, gender, color, description, statusPrice, photo, long, lat } = args
+
         if (!name) {
           throw new GraphQLError("Name is required", {
             extensions: { code: "Bad Request" }
@@ -212,9 +218,44 @@ const resolvers = {
           })
         }
 
-        const newPost = await Post.create(name, size, age, breed, gender, color, description, statusPrice, photo, long, lat)
-        return newPost
 
+        const question = `
+        saya mempunyai ras ${breed} berikan saya informasi terkait pemeliharaannya seperti:
+        makanan,  kesehatan, kebersihan, aktivitas, tempat beristirahat
+        berikan dalam format json dengan format seperti di bawah ini:
+
+          {
+           
+              "makanan": {
+                "deskripsi": "Beri makanan kucing berkualitas dengan kandungan nutrisi yang sesuai.",
+                "emoji": "🍽️"
+              },
+              "kesehatan": {
+                "deskripsi": "Lakukan kunjungan rutin ke dokter hewan, berikan vaksinasi, dan perhatikan tanda-tanda kesehatan.",
+                "emoji": "👩‍⚕️"
+              },
+              "kebersihan": {
+                "deskripsi": "Sediakan kotak pasir bersih, lakukan pembersihan rutin, dan perhatikan kebersihan bulu.",
+                "emoji": "🚿"
+              },
+              "aktivitas": {
+                "deskripsi": "Stimulasi aktivitas fisik dan mental dengan mainan dan interaksi yang berkualitas.",
+                "emoji": "🎾"
+              },
+              "tempat_beristirahat": {
+                "deskripsi": "Sediakan tempat tidur yang nyaman dan tenang untuk istirahat kucing.",
+                "emoji": "😴"
+              }
+            
+          }
+
+
+        berikan juga emoji yang mewakili setiap informasinya dan berikan deskripsi yang lebih lengkap dan informatif. cukup berikan jsonnya saja tidak perlu ada respons deskripsi apa pun selain respons dalam bentuk json
+        `;
+        const questions = await chatAI(question);
+        const information = JSON.parse(questions);
+        const newPost = await Post.create(name, size, age, breed, gender, color, description, information, photo, long, lat, UserId, statusPrice)
+        return { message: `successfully add post with cat's name : ${newPost.name}`, code: "Success" };
       } catch (err) {
         throw err
       }
@@ -227,8 +268,8 @@ const resolvers = {
         const post = await Post.getById({ PostId });
         if (post.status !== 'available') {
           throw new GraphQLError('Cat has been already adopted', {
-                extensions: { message: "Cat has been already adopted", code: 'Bad Request' },
-              });
+            extensions: { message: "Cat has been already adopted", code: 'Bad Request' },
+          });
         }
 
         const deletePost = await Post.delete({ PostId });
