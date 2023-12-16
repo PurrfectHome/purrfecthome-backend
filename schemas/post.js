@@ -83,8 +83,8 @@ const typeDefs = `#graphql
       description: String
       status: String
       statusPrice: String
-      adopterId: ID
-      posterId: ID
+      AdopterId: ID
+      PosterId: ID
       photo: [String]
       long: Float
       lat: Float
