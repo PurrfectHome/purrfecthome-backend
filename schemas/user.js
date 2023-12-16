@@ -39,7 +39,7 @@ const typeDefs = `#graphql
   }
 
   type Query {
-    user: User
+    usersById(UserId: String): User
   }
 
   type Mutation {
@@ -68,11 +68,10 @@ const typeDefs = `#graphql
 
 const resolvers = {
   Query: {
-    user: async (_, __, { authentication }) => {
+    usersById: async (_, { UserId }, { authentication }) => {
       try {
-        // const { authorId } = await authentication();
-        const authorId = 1;
-        const user = await User.getById({ id: new ObjectId(authorId) });
+        await authentication();
+        const user = await User.getById({ id: UserId });
 
         return user;
       } catch (err) {

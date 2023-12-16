@@ -9,6 +9,20 @@ class Post {
         return post;
     }
 
+    static async getByPosterId({ PosterId }) {
+        const Posts = getDB().collection("Posts");
+        const posterPosts = await Posts.find({ _id: new ObjectId(PosterId) }).toArray();
+
+        return posterPosts;
+    }
+
+    static async getByAdopterId({ AdopterId }) {
+        const Posts = getDB().collection("Posts");
+        const adopterPosts = await Posts.find({ _id: new ObjectId(AdopterId) }).toArray();
+
+        return adopterPosts;
+    }
+
     static async getByRadius({ long, lat }) {
         const postsCollection = getDB().collection("Posts");
         const nearbyPosts = await postsCollection.find({
@@ -30,7 +44,7 @@ class Post {
         const PostsCollection = getDB().collection("Posts");
         const updateAdopter = await PostsCollection.updateOne(
             { _id: new ObjectId(PostId) },
-            { $set: { AdopterId: new ObjectId(AdopterId) } } 
+            { $set: { AdopterId: new ObjectId(AdopterId) } }
         );
 
         return updateAdopter;
@@ -39,16 +53,16 @@ class Post {
     static async delete({ PostId }) {
         const PostsCollection = getDB().collection("Posts");
         const deletePost = await PostsCollection.deleteOne({ _id: new ObjectId(PostId) });
-        
+
         return deletePost;
     }
 
     static async create(name, size, age, breed, gender, color, statusPrice, description, photo, long, lat) {
         const newPost = {
             name,
-            size, 
-            age, 
-            breed, 
+            size,
+            age,
+            breed,
             gender,
             color,
             status: "available",
@@ -61,7 +75,7 @@ class Post {
             lat,
             accountType: "regular",
             createdAt: new Date(),
-            updatedAt: new Date() 
+            updatedAt: new Date()
         }
 
         const { insertedId } = await getDB().collection("Posts").insertOne(newPost)
