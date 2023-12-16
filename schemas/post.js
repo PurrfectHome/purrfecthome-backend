@@ -73,6 +73,24 @@ const typeDefs = `#graphql
     DeletePost(
         PostId: ID
     ): DeletePostRes
+
+    editPost(
+      PostId: String
+      name: String
+      size: String
+      age: String
+      breed: String
+      gender: String
+      color: String
+      description: String
+      status: String
+      statusPrice: String
+      adopterId: ID
+      posterId: ID
+      photo: [String]
+      long: Float
+      lat: Float
+    ): Post
   }
 `;
 
@@ -140,10 +158,12 @@ const resolvers = {
       }
     },
 
-    addPost: async (_, args, { authentication, authorization }) => {
+
+    addPost: async (_, args, { authentication }) => {
       const { UserId } = await authentication();
       try {
-        const { name, size, age, breed, gender, color, description, statusPrice, photo, long, lat } = args;
+        const { name, size, age, breed, gender, color, description, statusPrice, photo, long, lat } = args
+
         if (!name) {
           throw new GraphQLError("Name is required", {
             extensions: { code: "Bad Request" }
@@ -198,6 +218,7 @@ const resolvers = {
           })
         }
 
+
         const question = `
         saya mempunyai ras ${breed} berikan saya informasi terkait pemeliharaannya seperti:
         makanan,  kesehatan, kebersihan, aktivitas, tempat beristirahat
@@ -227,6 +248,7 @@ const resolvers = {
               }
             
           }
+
 
         berikan juga emoji yang mewakili setiap informasinya dan berikan deskripsi yang lebih lengkap dan informatif. cukup berikan jsonnya saja tidak perlu ada respons deskripsi apa pun selain respons dalam bentuk json
         `;
@@ -260,6 +282,19 @@ const resolvers = {
         return { message: "successfully delete post", code: "Success" };
       } catch (err) {
         throw err;
+      }
+    },
+    
+    editPost: async (_, args, { authentication }) => {
+      await authentication()
+
+      try {
+        const { PostId, name, size, age, breed, gender, color, description, statusPrice, photo, long, lat } = args
+        const editPost = await Post.edit(PostId, name, size, age, breed, gender, color, description, statusPrice, photo, long, lat)
+        return editPost
+
+      } catch(err) {
+        throw err
       }
     }
   }
