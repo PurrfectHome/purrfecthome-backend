@@ -23,9 +23,9 @@ class Post {
         return adopterPosts;
     }
 
-    static async getByRadius({ long, lat }) {
+    static async getByRadius({ long, lat, breed, page }) { 
         const postsCollection = getDB().collection("Posts");
-        const nearbyPosts = await postsCollection.find({
+        const query = {
             location: {
                 $near: {
                     $geometry: {
@@ -35,7 +35,24 @@ class Post {
                     $maxDistance: 70000
                 },
             },
-        }).toArray();
+        }
+
+        if(breed) {
+            query.breed = breed
+        }
+
+        if(!page) {
+            page = 1
+        }
+
+        const perPage = 10
+        const skip = (page - 1) * perPage
+
+        const nearbyPosts = await postsCollection
+        .find(query)
+        .skip(skip)
+        .limit(perPage)
+        .toArray();
 
         return nearbyPosts;
     }
@@ -90,7 +107,7 @@ class Post {
             updatedAt: new Date()
         };
 
-        if(name) update.name = name
+        if (name) update.name = name
         if (size) update.size = size;
         if (age) update.age = age;
         if (breed) update.breed = breed;

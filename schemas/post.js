@@ -29,7 +29,7 @@ const typeDefs = `#graphql
   }
 
   type Query {
-    postsByRadius: [Post]
+    postsByRadius(breed: String, page: Int): [Post]
     postsById(PostId: String): Post
     postsByPosterId(PosterId: String): [Post]
     postsByAdopterId(AdopterId: String): [Post]
@@ -94,10 +94,10 @@ const typeDefs = `#graphql
 
 const resolvers = {
   Query: {
-    postsByRadius: async (_, { long, lat }, { authentication }) => {
+    postsByRadius: async (_, { long, lat, breed, page }, { authentication }) => {
       try {
         const { authorId } = await authentication();
-        const posts = await Post.getByRadius({ lat, long });
+        const posts = await Post.getByRadius({ lat, long, breed, page });
         return posts;
       } catch (err) {
         throw err;
