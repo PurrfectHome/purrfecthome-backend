@@ -8,37 +8,39 @@ Purrfecthome-backend is the backend repository for the PurrfectHome application�
 
 - [ ] Skema Database
 - [ ] SettingUp Environment
+- [x] Authentication
+- [ ] Authorization
 - [ ] API
     - [x] User Account
      - [x] POST /login
-     - [x] POST /login/google
+     - [x] POST /login/google (testing)
      - [x] POST /register
     - [ ] Home Screen
-      - [x] GET /posts (by radius)
+      - [x] GET /posts (by radius) (testing)
       - [ ] GET /posts?limit=&breed=
     - [ ] Profile Screen
-      - [x] GET /user (by Id)
-      - [x] GET /post (by posterId)
-      - [x] GET /adopted (by adopterId)
+      - [x] GET /user (by Id) (testing)
+      - [x] GET /post (by posterId) (testing)
+      - [x] GET /adopted (by adopterId) (testing)
     - [ ] Add Post Screen
-    -  [x] POST /posts
-    -   [ ] Generate treatment suggestion from openai
+     - [x] POST /posts (authentication)
+      - [ ] Generate treatment suggestion from openai
     - [ ] Edit Post Screen
-      - [x] GET /posts/:id (by Id)
+      - [x] GET /posts/:id (by Id) (testing)
       - [ ] PUT /posts/:id
     - [ ] Post Detail Screen
-    -  [ ] GET /posts (by id) → include treatment suggestion from openai
+     - [x] GET /posts/:id (by id) → include treatment suggestion from openai (testing + gabungin query treatment suggestion)
     - [ ] Adoptable Post Screen
-    -  [x] GET /posts (by adopterId)
-    -  [x] GET /users (by username)
-    -  [x] PUT /posts/status/:id (membawa status & userId)
+     - [x] GET /posts (by adopterId) (testing)
+     - [x] GET /users (by username) (testing)
+     - [x] PUT /posts/status/:id (membawa status & userId)
     - [ ] Chat History
     -  [ ] GET /chats (by userId)
     - [ ] Chat Room
     -  [ ] GET /chats/:roomId
     -  [ ] SOCKET chat
     - [x] Seeding USER
-    - [ ] Seeding POST
+    - [x] Seeding POST
 
 
 

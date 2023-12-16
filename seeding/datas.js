@@ -221,39 +221,6 @@ const postsSeed = [
     "createdAt": "",
     "updatedAt": ""
   },
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  
   {
     "name": "Sphinx",
     "size": "medium",
@@ -262,7 +229,7 @@ const postsSeed = [
     "gender": "male",
     "color": "pink",
     "description": "Adventurous and friendly Sphynx kitten with a unique hairless coat.",
-    "photo": ["https://example.com/sphinx1.jpg", "https://example.com/sphinx2.jpg"],
+    "photo": ["https://catevolution.co.nz/cdn/shop/articles/sphynx-Cats-1200x750.png?v=1674628187&width=1100", "https://www.aspcapetinsurance.com/media/2417/all-about-sphynx-cats.jpg"],
     "long": 106.827183,
     "lat": -6.208821,
     "status": "available",
@@ -280,7 +247,7 @@ const postsSeed = [
     "gender": "female",
     "color": "fawn",
     "description": "Graceful Abyssinian cat seeking a loving and active home.",
-    "photo": ["https://example.com/misty1.jpg", "https://example.com/misty2.jpg"],
+    "photo": ["https://lollybrown.com/wp-content/uploads/2019/08/abyssinian-cat-2754331_960_720.jpg", "https://patch.com/img/cdn20/users/24142232/20230403/110235/styles/patch_image/public/abyssinian-cats-are-known-for-their-large-ears-and-unique-look-credit-m___03110217103.jpg"],
     "long": 110.388062,
     "lat": -7.767580,
     "status": "available",
@@ -298,7 +265,7 @@ const postsSeed = [
     "gender": "male",
     "color": "black and white",
     "description": "Adorable Scottish Fold kitten with distinctive folded ears. Loves to play with toys.",
-    "photo": ["https://example.com/oreo1.jpg", "https://example.com/oreo2.jpg"],
+    "photo": ["https://static.wixstatic.com/media/bfc548_537281c099d14b279e36359729dcc219~mv2.jpg/v1/fill/w_1776,h_1212,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/bfc548_537281c099d14b279e36359729dcc219~mv2.jpg", "https://media.graphassets.com/resize=height:360,width:1280/output=format:webp/P3ANVZPDQ3OJNE9YImTw?width=1280"],
     "long": 112.751049,
     "lat": -7.274217,
     "status": "adopted",
@@ -316,7 +283,7 @@ const postsSeed = [
     "gender": "female",
     "color": "tabby",
     "description": "Sweet and majestic Norwegian Forest Cat looking for a warm and cozy home.",
-    "photo": ["https://example.com/nala1.jpg", "https://example.com/nala2.jpg"],
+    "photo": ["https://cdn1.tedsby.com/tb/large/storage/5/4/7/547417/handmade-cat-norwegian-forest-named-aslan.jpg", "https://d1vbn70lmn1nqe.cloudfront.net/prod/wp-content/uploads/2021/10/22032626/fakta-menarik-mengenai-norwegian-forest-cat-halodoc.jpg.webp"],
     "long": 110.425628,
     "lat": -7.782889,
     "status": "available",
@@ -334,7 +301,7 @@ const postsSeed = [
     "gender": "male",
     "color": "brown",
     "description": "Gentle and fluffy Siberian cat seeking a peaceful retirement home.",
-    "photo": ["https://example.com/siber1.jpg", "https://example.com/siber2.jpg"],
+    "photo": ["https://images.saymedia-content.com/.image/t_share/MTc0Mzc0Nzk3Mzg2NzIwOTAy/hereditary-diseases-of-the-siberian-forest-cat.jpg", "https://excitedcats.com/wp-content/uploads/2023/07/siberian-cat-in-the-snow_Emil-Helge-Shutterstock.jpg"],
     "long": 106.845130,
     "lat": -6.208763,
     "status": "available",
@@ -352,137 +319,11 @@ const postsSeed = [
     "gender": "male",
     "color": "silver",
     "description": "Charming Exotic Shorthair kitten with a sleek silver coat. Loves to play and explore.",
-    "photo": ["https://example.com/whiskey1.jpg", "https://example.com/whiskey2.jpg"],
+    "photo": ["https://www.thesprucepets.com/thmb/ZQNIcRsqjASnDlUt7tRwiCLcZlo=/2127x0/filters:no_upscale():strip_icc()/GettyImages-469019865-3e040624b88e42d0b2d749c9e8897f9f.jpg", "https://cattitudedaily.com/wp-content/uploads/2021/11/brown-exotic-shorthair-tabby-scaled.jpg"],
     "long": 107.619125,
     "lat": -6.917464,
     "status": "adopted",
     "statusPrice": "With Adoption Fee",
-    "AdopterId": "",
-    "PosterId": "",
-    "createdAt": "",
-    "updatedAt": ""
-  },
-  {
-    "name": "Muffin",
-    "size": "small",
-    "age": "adult",
-    "breed": "Ragamuffin",
-    "gender": "female",
-    "color": "calico",
-    "description": "Sweet and gentle Ragamuffin cat looking for a loving home. Enjoys quiet cuddle sessions.",
-    "photo": ["https://example.com/muffin1.jpg", "https://example.com/muffin2.jpg"],
-    "long": 110.418812,
-    "lat": -7.556578,
-    "status": "available",
-    "statusPrice": "Without Adoption Fee",
-    "AdopterId": "",
-    "PosterId": "",
-    "createdAt": "",
-    "updatedAt": ""
-  },
-  {
-    "name": "Burmie",
-    "size": "big",
-    "age": "old",
-    "breed": "Burmese",
-    "gender": "male",
-    "color": "champagne",
-    "description": "Regal Burmese cat seeking a calm and comfortable retirement home.",
-    "photo": ["https://example.com/burmie1.jpg", "https://example.com/burmie2.jpg"],
-    "long": 112.620516,
-    "lat": -7.257472,
-    "status": "available",
-    "statusPrice": "Without Adoption Fee",
-    "AdopterId": "",
-    "PosterId": "",
-    "createdAt": "",
-    "updatedAt": ""
-  },
-  {
-    "name": "Bluebell",
-    "size": "medium",
-    "age": "kitten",
-    "breed": "Russian Blue",
-    "gender": "female",
-    "color": "blue",
-    "description": "Gentle and shy Russian Blue kitten looking for a patient and loving home.",
-    "photo": ["https://example.com/bluebell1.jpg", "https://example.com/bluebell2.jpg"],
-    "long": 107.602807,
-    "lat": -6.966700,
-    "status": "available",
-    "statusPrice": "Without Adoption Fee",
-    "AdopterId": "",
-    "PosterId": "",
-    "createdAt": "",
-    "updatedAt": ""
-  },
-  {
-    "name": "Lucky",
-    "size": "big",
-    "age": "adult",
-    "breed": "Indonesian Domestic",
-    "gender": "male",
-    "color": "orange",
-    "description": "Friendly and easygoing domestic cat looking for a forever home.",
-    "photo": ["https://example.com/lucky1.jpg", "https://example.com/lucky2.jpg"],
-    "long": 112.620516,
-    "lat": -7.257472,
-    "status": "available",
-    "statusPrice": "Without Adoption Fee",
-    "AdopterId": "",
-    "PosterId": "",
-    "createdAt": "",
-    "updatedAt": ""
-  },
-  {
-    "name": "Coco",
-    "size": "small",
-    "age": "kitten",
-    "breed": "Siamese",
-    "gender": "female",
-    "color": "chocolate",
-    "description": "Adorable Siamese kitten with a sweet personality. Loves to be pampered.",
-    "photo": ["https://example.com/coco1.jpg", "https://example.com/coco2.jpg"],
-    "long": 107.602807,
-    "lat": -6.966700,
-    "status": "available",
-    "statusPrice": "Without Adoption Fee",
-    "AdopterId": "",
-    "PosterId": "",
-    "createdAt": "",
-    "updatedAt": ""
-  },
-  {
-    "name": "Simba",
-    "size": "medium",
-    "age": "adult",
-    "breed": "Persian",
-    "gender": "male",
-    "color": "golden",
-    "description": "Majestic Persian cat with a luxurious golden coat. Enjoys lounging in the sun.",
-    "photo": ["https://example.com/simba1.jpg", "https://example.com/simba2.jpg"],
-    "long": 107.619125,
-    "lat": -6.917464,
-    "status": "adopted",
-    "statusPrice": "With Adoption Fee",
-    "AdopterId": "",
-    "PosterId": "",
-    "createdAt": "",
-    "updatedAt": ""
-  },
-  {
-    "name": "Lulu",
-    "size": "big",
-    "age": "old",
-    "breed": "Bengal",
-    "gender": "female",
-    "color": "marbled",
-    "description": "Elegant Bengal cat with a stunning marbled coat. Seeks a quiet and loving home.",
-    "photo": ["https://example.com/lulu1.jpg", "https://example.com/lulu2.jpg"],
-    "long": 110.418812,
-    "lat": -7.556578,
-    "status": "available",
-    "statusPrice": "Without Adoption Fee",
     "AdopterId": "",
     "PosterId": "",
     "createdAt": "",
