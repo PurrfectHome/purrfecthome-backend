@@ -121,7 +121,7 @@ const postsSeed = [
     "gender": "male",
     "color": "gray",
     "description": "Adorable and playful kitten with soft fur. Loves to cuddle.",
-    "photo": ["https://example.com/mittens1.jpg", "https://example.com/mittens2.jpg"],
+    "photo": ["https://www.zooplus.co.uk/magazine/wp-content/uploads/2019/03/maine-coon-cat-breed.jpg", "https://www.thesprucepets.com/thmb/MzKr6fC-v8W4D4oz2p9wWCwAFms=/2119x0/filters:no_upscale():strip_icc()/GettyImages-1189893683-e0ff70596b3b4f0687ba573e5a671f74.jpg"],
     "long": 106.845130,
     "lat": -6.208763,
     "status": "available",
@@ -139,7 +139,7 @@ const postsSeed = [
     "gender": "female",
     "color": "cream",
     "description": "Friendly and elegant Siamese cat looking for a new home.",
-    "photo": ["https://example.com/whiskers1.jpg", "https://example.com/whiskers2.jpg"],
+    "photo": ["https://catastic.pet/wp-content/uploads/2023/03/siamese-cat-price.jpg", "https://assets.elanco.com/8e0bf1c2-1ae4-001f-9257-f2be3c683fb1/fca42f04-2474-4302-a238-990c8aebfe8c/Siamese_cat_1110x740.jpg?w=3840&q=75&auto=format"],
     "long": 107.619125,
     "lat": -6.917464,
     "status": "adopted",
@@ -157,7 +157,7 @@ const postsSeed = [
     "gender": "male",
     "color": "white",
     "description": "Gentle and wise Persian cat seeking a quiet and loving retirement home.",
-    "photo": ["https://example.com/fluffy1.jpg", "https://example.com/fluffy2.jpg"],
+    "photo": ["https://www.bubblypet.com/wp-content/uploads/2022/07/Tabby-gray-Persian-cat-playing-in-garden-1200x800.jpg", "https://i.pinimg.com/originals/b4/e7/d4/b4e7d46063c31ae1f5dfb66a6bf30634.jpg"],
     "long": 110.418812,
     "lat": -7.556578,
     "status": "available",
@@ -175,7 +175,7 @@ const postsSeed = [
     "gender": "female",
     "color": "blue",
     "description": "Playful and curious British Shorthair kitten with striking blue fur.",
-    "photo": ["https://example.com/luna1.jpg", "https://example.com/luna2.jpg"],
+    "photo": ["https://img.freepik.com/free-photo/grey-kitty-with-monochrome-wall-her_23-2148955116.jpg?w=740&t=st=1702696269~exp=1702696869~hmac=4030d00a6ac17986b59a06eb36600f2508244f5b97686aaeb32f255f6cb2aa38", "https://img.freepik.com/free-photo/grey-cat-lying-looking-up_176474-6827.jpg?w=996&t=st=1702696353~exp=1702696953~hmac=4e3bffc6e216ce129eb26ced74e4c99b76040e5a050eea6d1976be108b9f794f"],
     "long": 112.620516,
     "lat": -7.257472,
     "status": "available",
@@ -193,7 +193,7 @@ const postsSeed = [
     "gender": "male",
     "color": "spotted",
     "description": "Energetic Bengal cat with beautiful spotted coat. Loves to play and climb.",
-    "photo": ["https://example.com/leo1.jpg", "https://example.com/leo2.jpg"],
+    "photo": ["https://img.freepik.com/free-photo/gold-bengal-cat-white-space_155003-12734.jpg?w=996&t=st=1702696471~exp=1702697071~hmac=e31345e33b13baa05a248cd38855f53a3878e69f973835961e7689134e10b1e4", "https://img.freepik.com/free-photo/cute-bengal-cat-looking-up_181624-34559.jpg?w=360&t=st=1702696434~exp=1702697034~hmac=40a8c2a3aa63b9287ef1cc1353f3a6df94aac2b6886c0dc9ac3dd2cf4d1902dd"],
     "long": 107.602807,
     "lat": -6.966700,
     "status": "adopted",
@@ -211,7 +211,7 @@ const postsSeed = [
     "gender": "female",
     "color": "seal point",
     "description": "Gentle and affectionate Ragdoll cat looking for a calm and loving home.",
-    "photo": ["https://example.com/cleo1.jpg", "https://example.com/cleo2.jpg"],
+    "photo": ["https://img.freepik.com/free-photo/ragdoll-breed-cat-face-close-up_2829-11417.jpg?w=740&t=st=1702696607~exp=1702697207~hmac=9140794249aa8af34abd690ca13404085142c907c83f043f55d2f5b72e564ace", "https://img.freepik.com/free-photo/ragdoll-breed-cat-face-close-up_2829-11405.jpg?w=996&t=st=1702696696~exp=1702697296~hmac=3ff58586e0d806d449e1c30754630914677d16249da8c09a097bda4e502b6d5d"],
     "long": 110.373283,
     "lat": -7.795579,
     "status": "available",
@@ -221,6 +221,39 @@ const postsSeed = [
     "createdAt": "",
     "updatedAt": ""
   },
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
   {
     "name": "Sphinx",
     "size": "medium",

@@ -31,6 +31,8 @@ const typeDefs = `#graphql
   type Query {
     postsByRadius: [Post]
     postsById(PostId: String): Post
+    postsByPosterId(PosterId: String): [Post]
+    postsByAdopterId(AdopterId: String): [Post]
   }
 
   type UpdateAdopterRes {
@@ -89,6 +91,26 @@ const resolvers = {
         const { authorId } = await authentication();
         const post = await Post.getById({ PostId });
         return post;
+      } catch (err) {
+        throw err;
+      }
+    },
+
+    postsByPosterId: async (_, { PosterId }, { authentication }) => {
+      try {
+        await authentication();
+        const posts = await Post.getByPosterId({ PosterId });
+        return posts;
+      } catch (err) {
+        throw err;
+      }
+    },
+
+    postsByAdopterId: async (_, { AdopterId }, { authentication }) => {
+      try {
+        await authentication();
+        const posts = await Post.getByAdopterId({ AdopterId });
+        return posts;
       } catch (err) {
         throw err;
       }

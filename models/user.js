@@ -47,52 +47,7 @@ class User {
         const Users = getDB().collection("Users");
         const user = await Users.aggregate([
             {
-                $match: { _id: id }
-            },
-            {
-                $lookup:
-                {
-                    from: "Follows",
-                    localField: "_id",
-                    foreignField: "followerId",
-                    as: "followers"
-                }
-            },
-            {
-                $lookup:
-                {
-                    from: "Follows",
-                    localField: "_id",
-                    foreignField: "followingId",
-                    as: "followings"
-                }
-            },
-            {
-                $lookup:
-                {
-                    from: "Users",
-                    localField: "followers.followingId",
-                    foreignField: "_id",
-                    as: "followings"
-                }
-            },
-            {
-                $lookup:
-                {
-                    from: "Users",
-                    localField: "followings.followerId",
-                    foreignField: "_id",
-                    as: "followers"
-                }
-            },
-            {
-                $lookup:
-                {
-                    from: "Posts",
-                    localField: "_id",
-                    foreignField: "authorId",
-                    as: "posts"
-                }
+                $match: { _id: new ObjectId(id) }
             },
             {
                 $project: {
