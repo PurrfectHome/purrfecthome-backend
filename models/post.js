@@ -9,16 +9,24 @@ class Post {
         return post;
     }
 
-    static async getByPosterId({ PosterId }) {
+    static async getByPosterId({ PosterId, status }) {
         const Posts = getDB().collection("Posts");
-        const posterPosts = await Posts.find({ _id: new ObjectId(PosterId) }).toArray();
+        const query = {
+            PosterId: new ObjectId(PosterId)
+        }
+
+        if (status) {
+            query.status = status;
+        }
+
+        const posterPosts = await Posts.find(query).toArray();
 
         return posterPosts;
     }
 
     static async getByAdopterId({ AdopterId }) {
         const Posts = getDB().collection("Posts");
-        const adopterPosts = await Posts.find({ _id: new ObjectId(AdopterId) }).toArray();
+        const adopterPosts = await Posts.find({ AdopterId: new ObjectId(AdopterId) }).toArray();
 
         return adopterPosts;
     }
@@ -26,7 +34,6 @@ class Post {
     static async getByRadius({ long, lat, breed }) {
         let postsCollection = getDB().collection("Posts");
     
-        // Create the 2dsphere index separately and wait for it to complete
         await postsCollection.createIndex({ "loc": "2dsphere" });
     
         const query = {
@@ -61,7 +68,7 @@ class Post {
         const PostsCollection = getDB().collection("Posts");
         const updateAdopter = await PostsCollection.updateOne(
             { _id: new ObjectId(PostId) },
-            { $set: { AdopterId: new ObjectId(AdopterId) } }
+            { $set: { AdopterId: new ObjectId(AdopterId), status: "adopted" } }
         );
 
         return updateAdopter;
@@ -90,7 +97,7 @@ class Post {
             AdopterId: "",
             PosterId: new ObjectId(PosterId),
             loc:  {
-                type: String,
+                type: "Point",
                 coordinates: [long, lat]
             },
             accountType: "regular",

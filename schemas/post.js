@@ -11,35 +11,37 @@ const { getCity } = require("../helpers/gmapsapi");
 const client = new OAuth2Client();
 
 const typeDefs = `#graphql
-  type GeoLoc {
-      type: String,
-      coordinates: [Float]
-  }
+ type GeoLoc {
+  type: String,
+  coordinates: [Float]
+}
 
-  type Post {
-    _id: ID
-    name: String
-    size: String
-    age: String
-    breed: String
-    gender: String
-    color: String
-    description: String
-    loc: GeoLoc
-    AdopterId: ID
-    PosterId: ID
-    InformationId: ID
-    status: String
-    statusPrice: String
-    photo: [String]
-    createdAt: String
-    updatedAt: String
-  }
+type Post {
+  _id: ID
+  name: String
+  size: String
+  age: String
+  breed: String
+  gender: String
+  color: String
+  description: String
+  loc: GeoLoc
+  long: Float
+  lat: Float
+  AdopterId: ID
+  PosterId: ID
+  InformationId: ID
+  status: String
+  statusPrice: String
+  photo: [String]
+  createdAt: String
+  updatedAt: String
+}
 
   type Query {
     postsByRadius(breed: String, lat: Float, long: Float): [Post]
     postsById(PostId: String): Post
-    postsByPosterId(PosterId: String): [Post]
+    postsByPosterId(PosterId: String, status: String): [Post]
     postsByAdopterId(AdopterId: String): [Post]
   }
 
@@ -69,6 +71,8 @@ const typeDefs = `#graphql
       description: String
       statusPrice: String
       photo: [String]
+      long: Float
+      lat: Float
     ): PostResponse
 
     UpdateAdopter(
@@ -109,6 +113,7 @@ const resolvers = {
         await User.patchCurrentLoc({ currentLoc: currentCity, userId });
 
         const posts = await Post.getByRadius({ lat, long, breed });
+        console.log(posts);
         return posts;
       } catch (err) {
         console.log(err);
@@ -126,10 +131,10 @@ const resolvers = {
       }
     },
 
-    postsByPosterId: async (_, { PosterId }, { authentication }) => {
+    postsByPosterId: async (_, { PosterId, status }, { authentication }) => {
       try {
         await authentication();
-        const posts = await Post.getByPosterId({ PosterId });
+        const posts = await Post.getByPosterId({ PosterId, status });
         return posts;
       } catch (err) {
         throw err;
@@ -229,14 +234,17 @@ const resolvers = {
         const informationData = await Information.getByBreed(breed);
         let InformationId;
         if (!informationData) {
+          console.log('masuk sini')
           const generateInfo = await chatAI(breed);
           const descriptionInfo = JSON.parse(generateInfo);
           
           const newInformation = await Information.create(breed, descriptionInfo);
           InformationId = newInformation._id;
-        }else {
+        } else {
+          console.log('masuk cuyy')
           InformationId = informationData._id;
         }
+        console.log(InformationId)
 
         const newPost = await Post.create(name, size, age, breed, gender, color, description, InformationId, photo, long, lat, userId, statusPrice);
 
@@ -271,31 +279,31 @@ const resolvers = {
         throw err;
       }
     },
-    
+
     editPost: async (_, args, { authentication, authorization }) => {
-      
+
       try {
         await authentication();
         await authorization();
 
-        const { PostId, name, size, age, breed, gender, color, description, statusPrice, photo} = args
+        const { PostId, name, size, age, breed, gender, color, description, statusPrice, photo } = args
 
         const informationData = await Information.getByBreed(breed);
         let InformationId;
         if (!informationData) {
           const generateInfo = await chatAI(breed);
           const descriptionInfo = JSON.parse(generateInfo);
-          
+
           const newInformation = await Information.create(breed, descriptionInfo);
           InformationId = newInformation._id;
-        }else {
+        } else {
           InformationId = informationData._id;
         }
 
         const editPost = await Post.edit(PostId, name, size, age, breed, gender, color, description, statusPrice, photo, InformationId)
         return { message: "successfully edit post", code: "Success" };
 
-      } catch(err) {
+      } catch (err) {
         throw err
       }
     }

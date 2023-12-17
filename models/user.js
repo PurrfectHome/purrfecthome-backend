@@ -40,6 +40,8 @@ class User {
             $or: [
                 { username: { $regex: new RegExp(username, 'i') } }
             ]
+        }, {
+            projection: { password: 0 }
         }).toArray();
 
         return users;
