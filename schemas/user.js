@@ -123,7 +123,7 @@ const resolvers = {
         }
 
         //validation unique username
-        let usernameExist = await User.getByUsername({ username });
+        let usernameExist = await User.findByUsername({ username });
         if (usernameExist) {
           throw new GraphQLError('Username has been exist', {
             extensions: { code: 'Bad Request' },

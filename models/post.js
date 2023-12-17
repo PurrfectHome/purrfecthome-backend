@@ -11,14 +11,14 @@ class Post {
 
     static async getByPosterId({ PosterId }) {
         const Posts = getDB().collection("Posts");
-        const posterPosts = await Posts.find({ _id: new ObjectId(PosterId) }).toArray();
+        const posterPosts = await Posts.find({ PosterId: new ObjectId(PosterId) }).toArray();
 
         return posterPosts;
     }
 
     static async getByAdopterId({ AdopterId }) {
         const Posts = getDB().collection("Posts");
-        const adopterPosts = await Posts.find({ _id: new ObjectId(AdopterId) }).toArray();
+        const adopterPosts = await Posts.find({ AdopterId: new ObjectId(AdopterId) }).toArray();
 
         return adopterPosts;
     }
@@ -54,14 +54,11 @@ class Post {
         return nearbyPosts;
     }
     
-
-
-
     static async updateAdopter({ AdopterId, PostId }) {
         const PostsCollection = getDB().collection("Posts");
         const updateAdopter = await PostsCollection.updateOne(
             { _id: new ObjectId(PostId) },
-            { $set: { AdopterId: new ObjectId(AdopterId) } }
+            { $set: { AdopterId: new ObjectId(AdopterId), status: "adopted" } }
         );
 
         return updateAdopter;
@@ -74,7 +71,7 @@ class Post {
         return deletePost;
     }
 
-    static async create(name, size, age, breed, gender, color, description, InformationId, photo, long, lat, PosterId, statusPrice) {
+    static async create(name, size, age, breed, gender, color, description, InformationId, photo, long, lat, PosterId, statusPrice, userId) {
         const newPost = {
             name,
             size,
@@ -88,12 +85,11 @@ class Post {
             InformationId,
             photo,
             AdopterId: "",
-            PosterId: new ObjectId(PosterId),
+            PosterId: new ObjectId(userId),
             loc:  {
-                type: String,
+                type: "Point",
                 coordinates: [long, lat]
             },
-            accountType: "regular",
             createdAt: new Date(),
             updatedAt: new Date()
         }

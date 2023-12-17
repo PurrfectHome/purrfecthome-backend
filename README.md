@@ -16,7 +16,7 @@ Purrfecthome-backend is the backend repository for the PurrfectHome applicationâ
      - [x] POST /login/google (testing)
      - [x] POST /register
     - [ ] Home Screen
-      - [x] GET /posts (by radius) (testing)
+      - [x] GET /posts (by radius)
       - [ ] GET /posts?limit=&breed=
     - [ ] Profile Screen
       - [x] GET /user (by Token) (testing)
