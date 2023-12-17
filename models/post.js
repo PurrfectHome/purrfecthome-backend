@@ -23,37 +23,38 @@ class Post {
         return adopterPosts;
     }
 
-    static async getByRadius({ long, lat, breed, page }) { 
+    static async getByRadius({ long, lat, breed }) { 
         const postsCollection = getDB().collection("Posts");
         const query = {
             location: {
                 $near: {
                     $geometry: {
                         type: 'Point',
-                        coordinates: [long, lat],
+                        coordinates: lat, long,
                     },
-                    $maxDistance: 70000
+                    $maxDistance: 2500000
                 },
             },
         }
-
+        console.log(long, lat, breed)
         if(breed) {
             query.breed = breed
         }
-
-        if(!page) {
-            page = 1
-        }
-
-        const perPage = 10
-        const skip = (page - 1) * perPage
-
+        console.log(query)
         const nearbyPosts = await postsCollection
-        .find(query)
-        .skip(skip)
-        .limit(perPage)
-        .toArray();
-
+        .createIndex({ location: "2dsphere" })
+        .then(() => postsCollection.find({
+            location: {
+                $near: {
+                    $geometry: {
+                        type: 'Point',
+                        coordinates: [long, lat],
+                    },
+                    $maxDistance: 2500000
+                },
+            },
+            breed: 'siberian'
+          }).toArray())
         return nearbyPosts;
     }
 
@@ -102,7 +103,7 @@ class Post {
         return newPost
     }
 
-    static async edit(PostId, name, size, age, breed, gender, color, statusPrice, description, photo, long, lat) {
+    static async edit(PostId, name, size, age, breed, gender, color, statusPrice, description, photo) {
         const filter = { _id: new ObjectId(PostId) };
         const update = {
             updatedAt: new Date()
@@ -117,8 +118,6 @@ class Post {
         if (statusPrice) update.statusPrice = statusPrice;
         if (description) update.description = description;
         if (photo) update.photo = photo;
-        if (long) update.long = long;
-        if (lat) update.lat = lat;
         
         const options = { returnDocument: 'after' }; // This option returns the updated document
     

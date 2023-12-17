@@ -5,6 +5,7 @@ const { hashPassword, comparePassword } = require("../helpers/bcryptjs");
 const { signToken } = require("../helpers/jwt");
 const { OAuth2Client } = require('google-auth-library');
 const Post = require("../models/post");
+const { getCity } = require("../helpers/gmapsapi");
 const { chatAI } = require("../helpers/openai");
 const client = new OAuth2Client();
 
@@ -31,7 +32,7 @@ const typeDefs = `#graphql
   }
 
   type Query {
-    postsByRadius(breed: String, page: Int): [Post]
+    postsByRadius(breed: String, long: Float, lat: Float) : [Post]
     postsById(PostId: String): Post
     postsByPosterId(PosterId: String): [Post]
     postsByAdopterId(AdopterId: String): [Post]
@@ -97,13 +98,13 @@ const typeDefs = `#graphql
 
 const resolvers = {
   Query: {
-    postsByRadius: async (_, { long, lat, breed, page }, { authentication }) => {
+    postsByRadius: async (_, { long, lat, breed }, { authentication }) => {
       try {
         const { userId } = await authentication();
         const currentCity = await getCity(long, lat);
         await User.patchCurrentLoc({ currentLoc: currentCity, userId });
 
-        const posts = await Post.getByRadius({ lat, long });
+        const posts = await Post.getByRadius({ lat, long, breed });
         return posts;
       } catch (err) {
         throw err;
