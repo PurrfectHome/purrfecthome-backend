@@ -7,9 +7,15 @@ const { OAuth2Client } = require('google-auth-library');
 const Post = require("../models/post");
 const { chatAI } = require("../helpers/openai");
 const Information = require("../models/information");
+const { getCity } = require("../helpers/gmapsapi");
 const client = new OAuth2Client();
 
 const typeDefs = `#graphql
+  type GeoLoc {
+      type: String,
+      coordinates: [Float]
+  }
+
   type Post {
     _id: ID
     name: String
@@ -19,8 +25,7 @@ const typeDefs = `#graphql
     gender: String
     color: String
     description: String
-    long: Float
-    lat: Float
+    loc: GeoLoc
     AdopterId: ID
     PosterId: ID
     InformationId: ID
@@ -32,7 +37,7 @@ const typeDefs = `#graphql
   }
 
   type Query {
-    postsByRadius(breed: String, page: Int): [Post]
+    postsByRadius(breed: String, lat: Float, long: Float): [Post]
     postsById(PostId: String): Post
     postsByPosterId(PosterId: String): [Post]
     postsByAdopterId(AdopterId: String): [Post]
@@ -47,6 +52,7 @@ const typeDefs = `#graphql
     message: String
     code: String
   }
+
   type PostResponse {
     message: String
     code: String
@@ -63,8 +69,6 @@ const typeDefs = `#graphql
       description: String
       statusPrice: String
       photo: [String]
-      long: Float
-      lat: Float
     ): PostResponse
 
     UpdateAdopter(
@@ -92,28 +96,29 @@ const typeDefs = `#graphql
       photo: [String]
       # long: Float
       # lat: Float
-    ): Post
+    ): PostResponse
   }
 `;
 
 const resolvers = {
   Query: {
-    postsByRadius: async (_, { long, lat, breed, page }, { authentication }) => {
+    postsByRadius: async (_, { long, lat, breed }, { authentication }) => {
       try {
         const { userId } = await authentication();
         const currentCity = await getCity(long, lat);
         await User.patchCurrentLoc({ currentLoc: currentCity, userId });
 
-        const posts = await Post.getByRadius({ lat, long });
+        const posts = await Post.getByRadius({ lat, long, breed });
         return posts;
       } catch (err) {
+        console.log(err);
         throw err;
       }
     },
 
     postsById: async (_, { PostId }, { authentication }) => {
       try {
-        const { UserId } = await authentication();
+        await authentication();
         const post = await Post.getById({ PostId });
         return post;
       } catch (err) {
@@ -143,9 +148,10 @@ const resolvers = {
   },
 
   Mutation: {
-    UpdateAdopter: async (_, { AdopterId, PostId }, { authentication }) => {
+    UpdateAdopter: async (_, { AdopterId, PostId }, { authentication, authorization }) => {
       try {
         await authentication();
+        await authorization();
         const update = await Post.updateAdopter({ AdopterId, PostId });
 
         if (update.matchedCount === 0) {
@@ -162,7 +168,7 @@ const resolvers = {
 
 
     addPost: async (_, args, { authentication }) => {
-      const { UserId } = await authentication();
+      const { userId } = await authentication();
       try {
         const { name, size, age, breed, gender, color, description, statusPrice, photo, long, lat } = args
 
@@ -232,7 +238,7 @@ const resolvers = {
           InformationId = informationData._id;
         }
 
-        const newPost = await Post.create(name, size, age, breed, gender, color, description, InformationId, photo, long, lat, UserId, statusPrice);
+        const newPost = await Post.create(name, size, age, breed, gender, color, description, InformationId, photo, long, lat, userId, statusPrice);
 
         return { message: `successfully add post with cat's name : ${newPost.name}`, code: "Success" };
       } catch (err) {
@@ -241,9 +247,10 @@ const resolvers = {
       }
     },
 
-    DeletePost: async (_, { PostId }, { authentication }) => {
+    DeletePost: async (_, { PostId }, { authentication, authorization }) => {
       try {
         await authentication();
+        await authorization();
 
         const post = await Post.getById({ PostId });
         if (post.status !== 'available') {
@@ -265,10 +272,12 @@ const resolvers = {
       }
     },
     
-    editPost: async (_, args, { authentication }) => {
-      await authentication()
-
+    editPost: async (_, args, { authentication, authorization }) => {
+      
       try {
+        await authentication();
+        await authorization();
+
         const { PostId, name, size, age, breed, gender, color, description, statusPrice, photo} = args
 
         const informationData = await Information.getByBreed(breed);
@@ -284,7 +293,7 @@ const resolvers = {
         }
 
         const editPost = await Post.edit(PostId, name, size, age, breed, gender, color, description, statusPrice, photo, InformationId)
-        return editPost
+        return { message: "successfully edit post", code: "Success" };
 
       } catch(err) {
         throw err

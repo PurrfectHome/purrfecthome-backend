@@ -23,39 +23,39 @@ class Post {
         return adopterPosts;
     }
 
-    static async getByRadius({ long, lat, breed, page }) { 
-        const postsCollection = getDB().collection("Posts");
+    static async getByRadius({ long, lat, breed }) {
+        let postsCollection = getDB().collection("Posts");
+    
+        // Create the 2dsphere index separately and wait for it to complete
+        await postsCollection.createIndex({ "loc": "2dsphere" });
+    
         const query = {
-            location: {
+            loc: {
                 $near: {
                     $geometry: {
-                        type: 'Point',
-                        coordinates: [long, lat],
+                        type: "Point",
+                        coordinates: [long, lat]
                     },
                     $maxDistance: 70000
                 },
-            },
+            }
+        };
+    
+        if (breed) {
+            query.breed = breed;
         }
-
-        if(breed) {
-            query.breed = breed
-        }
-
-        if(!page) {
-            page = 1
-        }
-
-        const perPage = 10
-        const skip = (page - 1) * perPage
-
+    
         const nearbyPosts = await postsCollection
-        .find(query)
-        .skip(skip)
-        .limit(perPage)
-        .toArray();
-
+            .find(query)
+            .toArray();
+    
+        console.log(nearbyPosts, lat, long, query.loc.$near.$geometry);
+    
         return nearbyPosts;
     }
+    
+
+
 
     static async updateAdopter({ AdopterId, PostId }) {
         const PostsCollection = getDB().collection("Posts");
@@ -89,8 +89,10 @@ class Post {
             photo,
             AdopterId: "",
             PosterId: new ObjectId(PosterId),
-            long,
-            lat,
+            loc:  {
+                type: String,
+                coordinates: [long, lat]
+            },
             accountType: "regular",
             createdAt: new Date(),
             updatedAt: new Date()
@@ -119,13 +121,13 @@ class Post {
         if (InformationId) update.InformationId = new ObjectId(InformationId);
         // if (long) update.long = long;
         // if (lat) update.lat = lat;
-        
+
         const options = { returnDocument: 'after' }; // This option returns the updated document
-    
+
         const updatedPost = await getDB().collection('Posts').findOneAndUpdate(filter, { $set: update }, options);
 
         return updatedPost;
-      }
+    }
 }
 
 module.exports = Post;

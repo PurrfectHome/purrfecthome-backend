@@ -1,5 +1,5 @@
 if (process.env.NODE_ENV !== "production") {
-  require('dotenv').config();
+    require('dotenv').config();
 }
 
 const { ApolloServer } = require('@apollo/server');
@@ -12,24 +12,25 @@ const { typeDefs: postTypeDefs, resolvers: postResolvers } = require("./schemas/
 const { typeDefs: messageTypeDefs, resolvers: messageResolvers } = require("./schemas/message")
 const { typeDefs: conversationTypeDefs, resolvers: conversationResolvers } = require("./schemas/conversation")
 const { connect } = require('./config/mongo');
-const authentication = require('./middlewares/authentication');
+const { authentication, authorization } = require('./middlewares/authentication');
 
 const server = new ApolloServer({
     typeDefs: [userTypeDefs, postTypeDefs, messageTypeDefs, conversationTypeDefs],
     resolvers: [userResolvers, postResolvers, messageResolvers, conversationResolvers]
-  });
-  
-  // Passing an ApolloServer instance to the `startStandaloneServer` function:
-  //  1. creates an Express app
-  //  2. installs your ApolloServer instance as middleware
-  //  3. prepares your app to handle incoming requests
+});
 
-  connect().then(() => {
+// Passing an ApolloServer instance to the `startStandaloneServer` function:
+//  1. creates an Express app
+//  2. installs your ApolloServer instance as middleware
+//  3. prepares your app to handle incoming requests
+
+connect().then(() => {
     return startStandaloneServer(server, {
         listen: { port: process.env.port || 3000 },
         context: ({ req }) => {
             return {
                 authentication: async () => await authentication(req),
+                authorization: async () => await authorization(req)
             }
         }
 
