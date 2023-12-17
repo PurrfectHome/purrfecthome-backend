@@ -19,12 +19,14 @@ Purrfecthome-backend is the backend repository for the PurrfectHome applicationâ
       - [x] GET /posts (by radius) (testing)
       - [ ] GET /posts?limit=&breed=
     - [ ] Profile Screen
+      - [x] GET /user (by Token) (testing)
       - [x] GET /user (by Id) (testing)
       - [x] GET /post (by posterId) (testing)
       - [x] GET /adopted (by adopterId) (testing)
     - [ ] Add Post Screen
+     - [x] GET /informations (get information by breed)
      - [x] POST /posts (authentication)
-      - [ ] Generate treatment suggestion from openai
+      - [x] Generate treatment suggestion from openai
     - [ ] Edit Post Screen
       - [x] GET /posts/:id (by Id) (testing)
       - [x] PUT /posts/:id (authorization)

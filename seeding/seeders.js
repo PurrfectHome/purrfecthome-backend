@@ -12,7 +12,7 @@ async function usersSeeding() {
     usersSeed = usersSeed.map(el => {
         el.createdAt = el.updatedAt = new Date();
         el.password = hashPassword(el.password);
-
+        el.avatar = `https://api.dicebear.com/7.x/bottts/svg?seed=${Math.floor(Math.random() * 999)}`;
         return el;
     });
 
