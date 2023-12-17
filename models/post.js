@@ -9,9 +9,17 @@ class Post {
         return post;
     }
 
-    static async getByPosterId({ PosterId }) {
+    static async getByPosterId({ PosterId, status }) {
         const Posts = getDB().collection("Posts");
-        const posterPosts = await Posts.find({ PosterId: new ObjectId(PosterId) }).toArray();
+        const query = {
+            PosterId: new ObjectId(PosterId)
+        }
+
+        if (status) {
+            query.status = status;
+        }
+
+        const posterPosts = await Posts.find(query).toArray();
 
         return posterPosts;
     }
@@ -26,7 +34,6 @@ class Post {
     static async getByRadius({ long, lat, breed }) {
         let postsCollection = getDB().collection("Posts");
     
-        // Create the 2dsphere index separately and wait for it to complete
         await postsCollection.createIndex({ "loc": "2dsphere" });
     
         const query = {
