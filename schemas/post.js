@@ -6,9 +6,16 @@ const { signToken } = require("../helpers/jwt");
 const { OAuth2Client } = require('google-auth-library');
 const Post = require("../models/post");
 const { chatAI } = require("../helpers/openai");
+const Information = require("../models/information");
+const { getCity } = require("../helpers/gmapsapi");
 const client = new OAuth2Client();
 
 const typeDefs = `#graphql
+  type GeoLoc {
+      type: String,
+      coordinates: [Float]
+  }
+
   type Post {
     _id: ID
     name: String
@@ -18,8 +25,7 @@ const typeDefs = `#graphql
     gender: String
     color: String
     description: String
-    long: Float
-    lat: Float
+    loc: GeoLoc
     AdopterId: ID
     PosterId: ID
     InformationId: ID
@@ -31,7 +37,7 @@ const typeDefs = `#graphql
   }
 
   type Query {
-    postsByRadius(breed: String, page: Int): [Post]
+    postsByRadius(breed: String, lat: Float, long: Float): [Post]
     postsById(PostId: String): Post
     postsByPosterId(PosterId: String): [Post]
     postsByAdopterId(AdopterId: String): [Post]
@@ -46,6 +52,7 @@ const typeDefs = `#graphql
     message: String
     code: String
   }
+
   type PostResponse {
     message: String
     code: String
@@ -62,8 +69,6 @@ const typeDefs = `#graphql
       description: String
       statusPrice: String
       photo: [String]
-      long: Float
-      lat: Float
     ): PostResponse
 
     UpdateAdopter(
@@ -86,33 +91,34 @@ const typeDefs = `#graphql
       description: String
       status: String
       statusPrice: String
-      AdopterId: ID
-      PosterId: ID
+      # AdopterId: ID
+      # PosterId: ID
       photo: [String]
-      long: Float
-      lat: Float
-    ): Post
+      # long: Float
+      # lat: Float
+    ): PostResponse
   }
 `;
 
 const resolvers = {
   Query: {
-    postsByRadius: async (_, { long, lat, breed, page }, { authentication }) => {
+    postsByRadius: async (_, { long, lat, breed }, { authentication }) => {
       try {
         const { userId } = await authentication();
         const currentCity = await getCity(long, lat);
         await User.patchCurrentLoc({ currentLoc: currentCity, userId });
 
-        const posts = await Post.getByRadius({ lat, long });
+        const posts = await Post.getByRadius({ lat, long, breed });
         return posts;
       } catch (err) {
+        console.log(err);
         throw err;
       }
     },
 
     postsById: async (_, { PostId }, { authentication }) => {
       try {
-        const { UserId } = await authentication();
+        await authentication();
         const post = await Post.getById({ PostId });
         return post;
       } catch (err) {
@@ -142,9 +148,10 @@ const resolvers = {
   },
 
   Mutation: {
-    UpdateAdopter: async (_, { AdopterId, PostId }, { authentication }) => {
+    UpdateAdopter: async (_, { AdopterId, PostId }, { authentication, authorization }) => {
       try {
         await authentication();
+        await authorization();
         const update = await Post.updateAdopter({ AdopterId, PostId });
 
         if (update.matchedCount === 0) {
@@ -161,7 +168,7 @@ const resolvers = {
 
 
     addPost: async (_, args, { authentication }) => {
-      const { UserId } = await authentication();
+      const { userId } = await authentication();
       try {
         const { name, size, age, breed, gender, color, description, statusPrice, photo, long, lat } = args
 
@@ -219,52 +226,31 @@ const resolvers = {
           })
         }
 
+        const informationData = await Information.getByBreed(breed);
+        let InformationId;
+        if (!informationData) {
+          const generateInfo = await chatAI(breed);
+          const descriptionInfo = JSON.parse(generateInfo);
+          
+          const newInformation = await Information.create(breed, descriptionInfo);
+          InformationId = newInformation._id;
+        }else {
+          InformationId = informationData._id;
+        }
 
-        const question = `
-        saya mempunyai ras ${breed} berikan saya informasi terkait pemeliharaannya seperti:
-        makanan,  kesehatan, kebersihan, aktivitas, tempat beristirahat
-        berikan dalam format json dengan format seperti di bawah ini:
+        const newPost = await Post.create(name, size, age, breed, gender, color, description, InformationId, photo, long, lat, userId, statusPrice);
 
-          {
-           
-              "makanan": {
-                "deskripsi": "Beri makanan kucing berkualitas dengan kandungan nutrisi yang sesuai.",
-                "emoji": "🍽️"
-              },
-              "kesehatan": {
-                "deskripsi": "Lakukan kunjungan rutin ke dokter hewan, berikan vaksinasi, dan perhatikan tanda-tanda kesehatan.",
-                "emoji": "👩‍⚕️"
-              },
-              "kebersihan": {
-                "deskripsi": "Sediakan kotak pasir bersih, lakukan pembersihan rutin, dan perhatikan kebersihan bulu.",
-                "emoji": "🚿"
-              },
-              "aktivitas": {
-                "deskripsi": "Stimulasi aktivitas fisik dan mental dengan mainan dan interaksi yang berkualitas.",
-                "emoji": "🎾"
-              },
-              "tempat_beristirahat": {
-                "deskripsi": "Sediakan tempat tidur yang nyaman dan tenang untuk istirahat kucing.",
-                "emoji": "😴"
-              }
-            
-          }
-
-
-        berikan juga emoji yang mewakili setiap informasinya dan berikan deskripsi yang lebih lengkap dan informatif. cukup berikan jsonnya saja tidak perlu ada respons deskripsi apa pun selain respons dalam bentuk json
-        `;
-        const questions = await chatAI(question);
-        const information = JSON.parse(questions);
-        const newPost = await Post.create(name, size, age, breed, gender, color, description, information, photo, long, lat, UserId, statusPrice)
         return { message: `successfully add post with cat's name : ${newPost.name}`, code: "Success" };
       } catch (err) {
+        console.log(err);
         throw err
       }
     },
 
-    DeletePost: async (_, { PostId }, { authentication }) => {
+    DeletePost: async (_, { PostId }, { authentication, authorization }) => {
       try {
         await authentication();
+        await authorization();
 
         const post = await Post.getById({ PostId });
         if (post.status !== 'available') {
@@ -286,13 +272,28 @@ const resolvers = {
       }
     },
     
-    editPost: async (_, args, { authentication }) => {
-      await authentication()
-
+    editPost: async (_, args, { authentication, authorization }) => {
+      
       try {
-        const { PostId, name, size, age, breed, gender, color, description, statusPrice, photo, long, lat } = args
-        const editPost = await Post.edit(PostId, name, size, age, breed, gender, color, description, statusPrice, photo, long, lat)
-        return editPost
+        await authentication();
+        await authorization();
+
+        const { PostId, name, size, age, breed, gender, color, description, statusPrice, photo} = args
+
+        const informationData = await Information.getByBreed(breed);
+        let InformationId;
+        if (!informationData) {
+          const generateInfo = await chatAI(breed);
+          const descriptionInfo = JSON.parse(generateInfo);
+          
+          const newInformation = await Information.create(breed, descriptionInfo);
+          InformationId = newInformation._id;
+        }else {
+          InformationId = informationData._id;
+        }
+
+        const editPost = await Post.edit(PostId, name, size, age, breed, gender, color, description, statusPrice, photo, InformationId)
+        return { message: "successfully edit post", code: "Success" };
 
       } catch(err) {
         throw err

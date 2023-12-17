@@ -4,19 +4,15 @@ const { emailFormat, passwordValidation } = require("../helpers/validation");
 const { hashPassword, comparePassword } = require("../helpers/bcryptjs");
 const { signToken } = require("../helpers/jwt");
 const { OAuth2Client } = require('google-auth-library');
-const { getCity } = require("../helpers/gmapsapi");
 const client = new OAuth2Client();
-
 
 const typeDefs = `#graphql
   type User {
-    id: ID
+    _id: ID
     fullname: String
     username: String
     email: String
     password: String
-    long: Float
-    lat: Float
     accountType: String
     createdAt: String
     updatedAt: String
@@ -33,6 +29,8 @@ const typeDefs = `#graphql
 
   type Query {
     usersById(UserId: String): User
+    usersProfile: User
+    usersByUsername(username: String): [User]
   }
 
   type Mutation {
@@ -55,10 +53,32 @@ const typeDefs = `#graphql
 
 const resolvers = {
   Query: {
+    usersByUsername: async (_, { username }, { authentication }) => {
+      try {
+        await authentication();
+        const users = await User.getByUsername({ username });
+
+        return users;
+      } catch (err) {
+        throw err;
+      }
+    },
+
     usersById: async (_, { UserId }, { authentication }) => {
       try {
         await authentication();
         const user = await User.getById({ id: UserId });
+
+        return user;
+      } catch (err) {
+        throw err;
+      }
+    },
+
+    usersProfile: async (_, __, { authentication }) => {
+      try {
+        const { userId } = await authentication();
+        const user = await User.getById({ id: userId });
 
         return user;
       } catch (err) {
@@ -149,7 +169,8 @@ const resolvers = {
           });
         }
 
-        const user = await User.getByUsername({ username });
+        const user = await User.findByUsername({ username });
+
         if (!user) {
           throw new GraphQLError('User is not exist', {
             extensions: { code: 'Not Found' },
@@ -162,14 +183,14 @@ const resolvers = {
             extensions: { code: 'Unauthenticated' },
           });
         }
-       
+
         return { accessToken: signToken({ UserId: user._id }) };
       } catch (err) {
         console.log(err);
         throw err;
       }
     },
-    
+
     loginGoogle: async (_, { gToken }) => {
       try {
         const ticket = await client.verifyIdToken({

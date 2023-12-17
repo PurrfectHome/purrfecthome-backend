@@ -23,39 +23,39 @@ class Post {
         return adopterPosts;
     }
 
-    static async getByRadius({ long, lat, breed, page }) { 
-        const postsCollection = getDB().collection("Posts");
+    static async getByRadius({ long, lat, breed }) {
+        let postsCollection = getDB().collection("Posts");
+    
+        // Create the 2dsphere index separately and wait for it to complete
+        await postsCollection.createIndex({ "loc": "2dsphere" });
+    
         const query = {
-            location: {
+            loc: {
                 $near: {
                     $geometry: {
-                        type: 'Point',
-                        coordinates: [long, lat],
+                        type: "Point",
+                        coordinates: [long, lat]
                     },
                     $maxDistance: 70000
                 },
-            },
+            }
+        };
+    
+        if (breed) {
+            query.breed = breed;
         }
-
-        if(breed) {
-            query.breed = breed
-        }
-
-        if(!page) {
-            page = 1
-        }
-
-        const perPage = 10
-        const skip = (page - 1) * perPage
-
+    
         const nearbyPosts = await postsCollection
-        .find(query)
-        .skip(skip)
-        .limit(perPage)
-        .toArray();
-
+            .find(query)
+            .toArray();
+    
+        console.log(nearbyPosts, lat, long, query.loc.$near.$geometry);
+    
         return nearbyPosts;
     }
+    
+
+
 
     static async updateAdopter({ AdopterId, PostId }) {
         const PostsCollection = getDB().collection("Posts");
@@ -74,7 +74,7 @@ class Post {
         return deletePost;
     }
 
-    static async create(name, size, age, breed, gender, color, description, information, photo, long, lat, PosterId, statusPrice) {
+    static async create(name, size, age, breed, gender, color, description, InformationId, photo, long, lat, PosterId, statusPrice) {
         const newPost = {
             name,
             size,
@@ -85,24 +85,25 @@ class Post {
             status: "available",
             statusPrice,
             description,
-            information,
+            InformationId,
             photo,
             AdopterId: "",
-            PosterId,
-            long,
-            lat,
+            PosterId: new ObjectId(PosterId),
+            loc:  {
+                type: String,
+                coordinates: [long, lat]
+            },
             accountType: "regular",
             createdAt: new Date(),
             updatedAt: new Date()
         }
 
-        const { insertedId } = await getDB().collection("Posts").insertOne(newPost)
-        newPost.id = insertedId
+        await getDB().collection("Posts").insertOne(newPost);
 
-        return newPost
+        return newPost;
     }
 
-    static async edit(PostId, name, size, age, breed, gender, color, statusPrice, description, photo, long, lat) {
+    static async edit(PostId, name, size, age, breed, gender, color, statusPrice, description, photo, InformationId) {
         const filter = { _id: new ObjectId(PostId) };
         const update = {
             updatedAt: new Date()
@@ -117,15 +118,16 @@ class Post {
         if (statusPrice) update.statusPrice = statusPrice;
         if (description) update.description = description;
         if (photo) update.photo = photo;
-        if (long) update.long = long;
-        if (lat) update.lat = lat;
-        
+        if (InformationId) update.InformationId = new ObjectId(InformationId);
+        // if (long) update.long = long;
+        // if (lat) update.lat = lat;
+
         const options = { returnDocument: 'after' }; // This option returns the updated document
-    
+
         const updatedPost = await getDB().collection('Posts').findOneAndUpdate(filter, { $set: update }, options);
 
         return updatedPost;
-      }
+    }
 }
 
 module.exports = Post;

@@ -8,8 +8,6 @@ class User {
             username,
             email,
             password: hashedPassword,
-            long: 0,
-            lat: 0,
             accountType: "regular",
             createdAt: new Date(),
             updatedAt: new Date()
@@ -29,11 +27,22 @@ class User {
         return user;
     }
 
-    static async getByUsername({ username }) {
+    static async findByUsername({ username }) {
         const Users = getDB().collection("Users");
         const user = await Users.findOne({ username });
 
         return user;
+    }
+
+    static async getByUsername({ username }) {
+        const Users = getDB().collection("Users");
+        const users = await Users.find({
+            $or: [
+                { username: { $regex: new RegExp(username, 'i') } }
+            ]
+        }).toArray();
+
+        return users;
     }
 
     static async getByEmail({ email }) {
@@ -53,7 +62,23 @@ class User {
                 $project: {
                     password: 0,
                 }
-            }
+            },
+            {
+                $lookup: {
+                    from: "Posts",
+                    localField: "id",
+                    foreignField: "PosterId",
+                    as: "Release"
+                }
+            },
+            {
+                $lookup: {
+                    from: "Posts",
+                    localField: "id",
+                    foreignField: "AdopterId",
+                    as: "Adoption"
+                }
+            },
         ]).toArray();
 
         return user[0];
@@ -64,7 +89,7 @@ class User {
             { _id: new ObjectId(userId) },
             { $set: { currentLoc } }
         );
-    }   
+    }
 }
 
 module.exports = User;
