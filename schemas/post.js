@@ -8,7 +8,6 @@ const Post = require("../models/post");
 const { getCity } = require("../helpers/gmapsapi");
 const { chatAI } = require("../helpers/openai");
 const Information = require("../models/information");
-const { getCity } = require("../helpers/gmapsapi");
 const client = new OAuth2Client();
 
 const typeDefs = `#graphql
