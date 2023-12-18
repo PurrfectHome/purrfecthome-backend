@@ -1,3 +1,4 @@
+const { GraphQLError } = require("graphql");
 const Conversation = require("../models/conversation");
 
 const typeDefs = `#graphql
@@ -51,7 +52,7 @@ const resolvers = {
                 }
 
                 const convo = await Conversation.getByUser(userId, UserId2)
-
+                console.log(convo)
                 if (convo) {
                     throw new GraphQLError("Conversation already established", {
                         extensions: { code: "Bad Request" }
