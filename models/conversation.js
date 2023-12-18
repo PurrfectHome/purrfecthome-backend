@@ -33,9 +33,9 @@ class Conversation {
                 { user2: new ObjectId(userId) }
             ]
         };
-        const convos = getDB().collection("Conversations").find(query).toArray()
 
-        return convos
+        const convos = getDB().collection("Conversations").find(query).toArray();
+        return convos;
     }
 
     static async getById(convoId) {
