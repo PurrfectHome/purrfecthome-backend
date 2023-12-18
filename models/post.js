@@ -57,7 +57,7 @@ class Post {
                         type: "Point",
                         coordinates: [long, lat]
                     },
-                    $maxDistance: 70000
+                    $maxDistance: 2500000
                 },
             },
             status: 'available'
@@ -73,9 +73,6 @@ class Post {
 
         return nearbyPosts;
     }
-
-
-
 
     static async updateAdopter({ AdopterId, PostId }) {
         const PostsCollection = getDB().collection("Posts");
@@ -94,7 +91,7 @@ class Post {
         return deletePost;
     }
 
-    static async create(name, size, age, breed, gender, color, description, InformationId, photo, long, lat, PosterId, statusPrice) {
+    static async create(name, size, age, breed, gender, color, description, InformationId, photo, long, lat, PosterId, statusPrice, userId) {
         const newPost = {
             name,
             size,
@@ -113,7 +110,6 @@ class Post {
                 type: "Point",
                 coordinates: [long, lat]
             },
-            accountType: "regular",
             createdAt: new Date(),
             updatedAt: new Date()
         }

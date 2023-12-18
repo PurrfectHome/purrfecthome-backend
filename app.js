@@ -33,7 +33,6 @@ connect().then(() => {
                 authorization: async () => await authorization(req)
             }
         }
-
     })
 }).then(({ url }) => {
     console.log(`🚀  Server ready at: ${url}`);

@@ -5,9 +5,9 @@ const { hashPassword, comparePassword } = require("../helpers/bcryptjs");
 const { signToken } = require("../helpers/jwt");
 const { OAuth2Client } = require('google-auth-library');
 const Post = require("../models/post");
+const { getCity } = require("../helpers/gmapsapi");
 const { chatAI } = require("../helpers/openai");
 const Information = require("../models/information");
-const { getCity } = require("../helpers/gmapsapi");
 const client = new OAuth2Client();
 
 const typeDefs = `#graphql
@@ -88,11 +88,11 @@ type Post {
       breed: String
       gender: String
       color: String
+      lat: Float
+      long: Float
       description: String
       statusPrice: String
       photo: [String]
-      long: Float
-      lat: Float
     ): PostResponse
 
     updateAdopter(
@@ -261,7 +261,7 @@ const resolvers = {
           InformationId = informationData._id;
         }
 
-        const newPost = await Post.create(name, size, age, breed, gender, color, description, InformationId, photo, long, lat, userId, statusPrice);
+        const newPost = await Post.create(name, size, age, breed, gender, color, description, InformationId, photo, long, lat, userId, statusPrice, userId);
 
         return { message: `successfully add post with cat's name : ${newPost.name}`, code: "Success" };
       } catch (err) {
