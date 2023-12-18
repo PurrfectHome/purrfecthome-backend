@@ -5,7 +5,7 @@ class Message {
     static async create( message, ConversationID, userId ) {
         const newMsg = {
             message,
-            ConversationID,
+            ConversationID: new ObjectId(ConversationID),
             User1: new ObjectId(userId),
             createdAt: new Date(),
             updatedAt: new Date()
