@@ -4,9 +4,24 @@ const { getDB } = require("../config/mongo");
 class Post {
     static async getById({ PostId }) {
         const Posts = getDB().collection("Posts");
-        const post = await Posts.findOne({ _id: new ObjectId(PostId) });
+        const post = await Posts.aggregate([
+            {
+                $match: { _id: new ObjectId(PostId) }
+            },
+            {
+                $lookup: {
+                    from: "Informations",
+                    localField: "InformationId",
+                    foreignField: "_id",
+                    as: "Information"
+                }
+            },
+            {
+                $unwind: { path: "$Information", preserveNullAndEmptyArrays: true },
+            },
+        ]).toArray();
 
-        return post;
+        return post[0];
     }
 
     static async getByPosterId({ PosterId, status }) {
@@ -33,9 +48,9 @@ class Post {
 
     static async getByRadius({ long, lat, breed }) {
         let postsCollection = getDB().collection("Posts");
-    
+
         await postsCollection.createIndex({ "loc": "2dsphere" });
-    
+
         const query = {
             loc: {
                 $near: {
@@ -47,20 +62,21 @@ class Post {
                 },
             }
         };
-    
+
         if (breed) {
             query.breed = breed;
         }
-    
+
         const nearbyPosts = await postsCollection
             .find(query)
             .toArray();
-    
-        console.log(nearbyPosts, lat, long, query.loc.$near.$geometry);
-    
+
         return nearbyPosts;
     }
-    
+
+
+
+
     static async updateAdopter({ AdopterId, PostId }) {
         const PostsCollection = getDB().collection("Posts");
         const updateAdopter = await PostsCollection.updateOne(
@@ -92,8 +108,8 @@ class Post {
             InformationId,
             photo,
             AdopterId: "",
-            PosterId: new ObjectId(userId),
-            loc:  {
+            PosterId: new ObjectId(PosterId),
+            loc: {
                 type: "Point",
                 coordinates: [long, lat]
             },

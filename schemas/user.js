@@ -7,12 +7,45 @@ const { OAuth2Client } = require('google-auth-library');
 const client = new OAuth2Client();
 
 const typeDefs = `#graphql
+
   type User {
     _id: ID
     fullname: String
     username: String
     email: String
     password: String
+    accountType: String
+    createdAt: String
+    updatedAt: String
+  }
+
+  type UserPost {
+  _id: ID
+  name: String
+  size: String
+  age: String
+  breed: String
+  gender: String
+  color: String
+  description: String
+  loc: GeoLoc
+  AdopterId: ID
+  PosterId: ID
+  InformationId: ID
+  status: String
+  statusPrice: String
+  photo: [String]
+  createdAt: String
+  updatedAt: String
+}
+
+  type UserProfile {
+    _id: ID
+    fullname: String
+    username: String
+    email: String
+    Release: [UserPost]
+    Adoption: [UserPost]
     accountType: String
     createdAt: String
     updatedAt: String
@@ -29,7 +62,7 @@ const typeDefs = `#graphql
 
   type Query {
     usersById(UserId: String): User
-    usersProfile: User
+    usersProfile: UserProfile
     usersByUsername(username: String): [User]
   }
 
@@ -186,7 +219,6 @@ const resolvers = {
 
         return { accessToken: signToken({ UserId: user._id }) };
       } catch (err) {
-        console.log(err);
         throw err;
       }
     },
