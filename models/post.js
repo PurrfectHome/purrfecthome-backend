@@ -57,7 +57,7 @@ class Post {
                         type: "Point",
                         coordinates: [long, lat]
                     },
-                    $maxDistance: 2500000
+                    $maxDistance: 70000
                 },
             },
             status: 'available'
@@ -91,7 +91,7 @@ class Post {
         return deletePost;
     }
 
-    static async create(name, size, age, breed, gender, color, description, InformationId, photo, long, lat, PosterId, statusPrice, userId) {
+    static async create(name, size, age, breed, gender, color, description, InformationId, photo, long, lat, PosterId, statusPrice) {
         const newPost = {
             name,
             size,

@@ -33,7 +33,7 @@ const resolvers = {
 
     Mutation: {
         addConvo: async (_, args, { authentication }) => {
-            await authentication();
+            const { userId } = await authentication();
 
             try {
                 const { UserId2 } = args

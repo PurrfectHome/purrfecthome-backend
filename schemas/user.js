@@ -7,6 +7,11 @@ const { OAuth2Client } = require('google-auth-library');
 const client = new OAuth2Client();
 
 const typeDefs = `#graphql
+  type adopter {
+    _id: ID,
+    fullname: String,
+    username: String
+  }
 
   type User {
     _id: ID
@@ -37,6 +42,7 @@ const typeDefs = `#graphql
   photo: [String]
   createdAt: String
   updatedAt: String
+  adopter: adopter
 }
 
   type UserProfile {
