@@ -26,9 +26,9 @@ const typeDefs = `#graphql
 `;
 
 const resolvers = {
-    Query: {
+    // Query: {
 
-    },
+    // },
 
     Mutation: {
         addMsg: async (_, args, { authentication }) => {

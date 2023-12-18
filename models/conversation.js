@@ -25,6 +25,19 @@ class Conversation {
         const convo = getDB().collection("Conversations").findOne(query)
         return convo
     }
+
+    static async getAll(userId) {
+        console.log(userId)
+        const query = {
+            user1: new ObjectId(userId)
+            // $or: [
+            //     { user1: new ObjectId(userId) },
+            //     { user2: new ObjectId(userId) }
+            // ]
+        };
+        const convos = getDB().collection("Conversation").find({ user1: userId }).toArray()
+        return convos
+    }
 }
 
 module.exports = Conversation
