@@ -56,7 +56,7 @@ class User {
 
     static async getById({ id }) {
         const Users = getDB().collection("Users");
-        const user = await Users.aggregate([
+        let user = await Users.aggregate([
             {
                 $match: { _id: new ObjectId(id) }
             },
@@ -112,8 +112,8 @@ class User {
                     fullname: { $first: "$fullname" },
                     username: { $first: "$username" },
                     email: { $first: "$email" },
-                    Release: { $push: "$Release" },
-                    Adoption: { $push: "$Adoption" },
+                    Release: { $addToSet: "$Release" },
+                    Adoption: { $addToSet: "$Adoption" },
                     accountType: { $first: "$accountType" },
                     createdAt: { $first: "$createdAt" },
                     updatedAt: { $first: "$updatedAt" }
@@ -127,9 +127,7 @@ class User {
                     "email": 1,
                     "Release": {
                         $map: {
-                            input: {
-                                $ifNull: ["$Release", []]
-                            },
+                            input: "$Release",
                             as: "release",
                             in: {
                                 _id: "$$release._id",
@@ -154,45 +152,46 @@ class User {
                         }
                     },
                     "Adoption": {
-                        "Adoption": {
-                            $map: {
-                                input: {
-                                    $ifNull: ["$Adoption", []]
-                                },
-                                as: "adoption",
-                                in: {
-                                    _id: "$$adoption._id",
-                                    name: "$$adoption.name",
-                                    size: "$$adoption.size",
-                                    age: "$$adoption.age",
-                                    breed: "$$adoption.breed",
-                                    gender: "$$adoption.gender",
-                                    color: "$$adoption.color",
-                                    description: "$$adoption.description",
-                                    loc: "$$adoption.loc",
-                                    AdopterId: "$$adoption.AdopterId",
-                                    PosterId: "$$adoption.PosterId",
-                                    InformationId: "$$adoption.InformationId",
-                                    status: "$$adoption.status",
-                                    statusPrice: "$$adoption.statusPrice",
-                                    photo: "$$adoption.photo",
-                                    createdAt: "$$adoption.createdAt",
-                                    updatedAt: "$$adoption.updatedAt",
-                                }
+                        $map: {
+                            input: "$Adoption",
+                            as: "adoption",
+                            in: {
+                                _id: "$$adoption._id",
+                                name: "$$adoption.name",
+                                size: "$$adoption.size",
+                                age: "$$adoption.age",
+                                breed: "$$adoption.breed",
+                                gender: "$$adoption.gender",
+                                color: "$$adoption.color",
+                                description: "$$adoption.description",
+                                loc: "$$adoption.loc",
+                                AdopterId: "$$adoption.AdopterId",
+                                PosterId: "$$adoption.PosterId",
+                                InformationId: "$$adoption.InformationId",
+                                status: "$$adoption.status",
+                                statusPrice: "$$adoption.statusPrice",
+                                photo: "$$adoption.photo",
+                                createdAt: "$$adoption.createdAt",
+                                updatedAt: "$$adoption.updatedAt",
                             }
-                        },
+                        }
                     },
                     "accountType": 1,
                     "createdAt": 1,
                     "updatedAt": 1,
-                   
-                  
                 }
             },
         ]).toArray();
-
-        return user[0]; 
+    
+        if (user[0]) {
+            if (!user[0].Release[0]._id) {
+                user[0].Release = [];
+            }
+        }
+        
+        return user[0];
     }
+    
 
     static async patchCurrentLoc({ currentLoc, userId }) {
         await getDB().collection("Users").updateOne(

@@ -27,16 +27,14 @@ class Conversation {
     }
 
     static async getAll(userId) {
-        console.log(userId)
         const query = {
-            user1: new ObjectId(userId)
-            // $or: [
-            //     { user1: new ObjectId(userId) },
-            //     { user2: new ObjectId(userId) }
-            // ]
+            $or: [
+                { user1: new ObjectId(userId) },
+                { user2: new ObjectId(userId) }
+            ]
         };
-        const convos = getDB().collection("Conversation").find({ user1: userId }).toArray()
-        return convos
+        const convos = getDB().collection("Conversations").find(query).toArray();
+        return convos;
     }
 }
 
