@@ -35,7 +35,6 @@ class Post {
         }
 
         const posterPosts = await Posts.find(query).toArray();
-
         return posterPosts;
     }
 
@@ -60,7 +59,8 @@ class Post {
                     },
                     $maxDistance: 70000
                 },
-            }
+            },
+            status: 'available'
         };
 
         if (breed) {

@@ -190,7 +190,6 @@ const resolvers = {
       }
     },
 
-
     addPost: async (_, args, { authentication }) => {
       const { userId } = await authentication();
       try {
