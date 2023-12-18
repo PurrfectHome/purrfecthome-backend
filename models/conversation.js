@@ -27,16 +27,34 @@ class Conversation {
     }
 
     static async getAll(userId) {
-        console.log(userId)
         const query = {
-            user1: new ObjectId(userId)
-            // $or: [
-            //     { user1: new ObjectId(userId) },
-            //     { user2: new ObjectId(userId) }
-            // ]
+            $or: [
+                { user1: new ObjectId(userId) },
+                { user2: new ObjectId(userId) }
+            ]
         };
-        const convos = getDB().collection("Conversation").find({ user1: userId }).toArray()
+        const convos = getDB().collection("Conversations").find(query).toArray()
+
         return convos
+    }
+
+    static async getById(convoId) {
+        const Convos = getDB().collection("Conversations")
+        const convo = await Convos.aggregate([
+            {
+                $match: { _id: new ObjectId(convoId) }
+            },
+            {
+                $lookup: {
+                    from: "Messages",
+                    localField: "_id",
+                    foreignField: "ConversationID",
+                    as: "MessagesByConvo"
+                }
+            }
+        ]).toArray();
+        console.log(convo[0])
+        return convo[0]
     }
 }
 

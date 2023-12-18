@@ -11,8 +11,18 @@ const typeDefs = `#graphql
     updatedAt: String
   }
 
+  type ConvoIdRes {
+    _id: ID
+    user1: ID
+    user2: ID
+    createdAt: String
+    updatedAt: String
+    MessagesByConvo: [Message]
+  }
+
   type Query {
     convosByUser: [Conversation]
+    convoById(convoId: String): ConvoIdRes
   }
 
   type Mutation {
@@ -25,6 +35,16 @@ const typeDefs = `#graphql
     message: String
     code: String
   }
+
+
+  type Message {
+    _id: ID
+    message: String
+    ConversationID: ID
+    User1: ID
+    createdAt: String
+    updatedAt: String
+  }
 `;
 
 const resolvers = {
@@ -33,8 +53,21 @@ const resolvers = {
             try {
                 const { userId } = await authentication()
                 const convos = await Conversation.getAll(userId)
+                console.log(convos)
                 return convos
             } catch (err) {
+                throw err
+            }
+        },
+
+        convoById: async (_, args, { authentication }) => {
+            await authentication()
+            try {
+                const { convoId } = args
+                const convo = await Conversation.getById(convoId)
+                console.log(convo)
+                return convo
+            } catch(err) {
                 throw err
             }
         }
