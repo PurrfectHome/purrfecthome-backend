@@ -1,3 +1,4 @@
+const { GraphQLError } = require("graphql");
 const Message = require("../models/message");
 
 const typeDefs = `#graphql
@@ -31,7 +32,7 @@ const resolvers = {
 
     Mutation: {
         addMsg: async (_, args, { authentication }) => {
-            await authentication();
+            const {userId} = await authentication();
 
             try {
                 const { message, ConversationID } = args
