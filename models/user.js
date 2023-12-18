@@ -68,7 +68,7 @@ class User {
             {
                 $lookup: {
                     from: "Posts",
-                    localField: "id",
+                    localField: "_id",
                     foreignField: "PosterId",
                     as: "Release"
                 }
@@ -76,7 +76,7 @@ class User {
             {
                 $lookup: {
                     from: "Posts",
-                    localField: "id",
+                    localField: "_id",
                     foreignField: "AdopterId",
                     as: "Adoption"
                 }
