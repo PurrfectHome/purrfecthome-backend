@@ -74,9 +74,6 @@ class Post {
         return nearbyPosts;
     }
 
-
-
-
     static async updateAdopter({ AdopterId, PostId }) {
         const PostsCollection = getDB().collection("Posts");
         const updateAdopter = await PostsCollection.updateOne(
