@@ -261,7 +261,7 @@ const resolvers = {
           InformationId = informationData._id;
         }
 
-        const newPost = await Post.create(name, size, age, breed, gender, color, description, InformationId, photo, long, lat, userId, statusPrice, userId);
+        const newPost = await Post.create(name, size, age, breed, gender, color, description, InformationId, photo, long, lat, userId, statusPrice);
 
         return { message: `successfully add post with cat's name : ${newPost.name}`, code: "Success" };
       } catch (err) {

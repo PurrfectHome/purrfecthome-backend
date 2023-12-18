@@ -1,3 +1,4 @@
+const { GraphQLError } = require("graphql");
 const Conversation = require("../models/conversation");
 
 const typeDefs = `#graphql
@@ -33,7 +34,7 @@ const resolvers = {
 
     Mutation: {
         addConvo: async (_, args, { authentication }) => {
-            await authentication();
+            const { userId } = await authentication();
 
             try {
                 const { UserId2 } = args
@@ -51,7 +52,7 @@ const resolvers = {
                 }
 
                 const convo = await Conversation.getByUser(userId, UserId2)
-
+                console.log(convo)
                 if (convo) {
                     throw new GraphQLError("Conversation already established", {
                         extensions: { code: "Bad Request" }
