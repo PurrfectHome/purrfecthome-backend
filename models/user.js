@@ -74,6 +74,28 @@ class User {
                 }
             },
             {
+                $unwind: { path: "$Release", preserveNullAndEmptyArrays: true },
+            },
+            {
+                $lookup: {
+                    from: "Users",
+                    let: { adopterId: "$Release.AdopterId" },
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: { $eq: ["$_id", "$$adopterId"] }
+                            }
+                        },
+                        {
+                            $project: {
+                                password: 0,
+                            }
+                        }
+                    ],
+                    as: "Release.adopter"
+                }
+            },
+            {
                 $lookup: {
                     from: "Posts",
                     localField: "_id",
@@ -81,9 +103,95 @@ class User {
                     as: "Adoption"
                 }
             },
+            {
+                $unwind: { path: "$Adoption", preserveNullAndEmptyArrays: true },
+            },
+            {
+                $group: {
+                    _id: "$_id",
+                    fullname: { $first: "$fullname" },
+                    username: { $first: "$username" },
+                    email: { $first: "$email" },
+                    Release: { $push: "$Release" },
+                    Adoption: { $push: "$Adoption" },
+                    accountType: { $first: "$accountType" },
+                    createdAt: { $first: "$createdAt" },
+                    updatedAt: { $first: "$updatedAt" }
+                }
+            },
+            {
+                $project: {
+                    "_id": 1,
+                    "fullname": 1,
+                    "username": 1,
+                    "email": 1,
+                    "Release": {
+                        $map: {
+                            input: {
+                                $ifNull: ["$Release", []]
+                            },
+                            as: "release",
+                            in: {
+                                _id: "$$release._id",
+                                name: "$$release.name",
+                                size: "$$release.size",
+                                age: "$$release.age",
+                                breed: "$$release.breed",
+                                gender: "$$release.gender",
+                                color: "$$release.color",
+                                description: "$$release.description",
+                                loc: "$$release.loc",
+                                AdopterId: "$$release.AdopterId",
+                                PosterId: "$$release.PosterId",
+                                InformationId: "$$release.InformationId",
+                                status: "$$release.status",
+                                statusPrice: "$$release.statusPrice",
+                                photo: "$$release.photo",
+                                createdAt: "$$release.createdAt",
+                                updatedAt: "$$release.updatedAt",
+                                adopter: { $arrayElemAt: ["$$release.adopter", 0] }
+                            }
+                        }
+                    },
+                    "Adoption": {
+                        "Adoption": {
+                            $map: {
+                                input: {
+                                    $ifNull: ["$Adoption", []]
+                                },
+                                as: "adoption",
+                                in: {
+                                    _id: "$$adoption._id",
+                                    name: "$$adoption.name",
+                                    size: "$$adoption.size",
+                                    age: "$$adoption.age",
+                                    breed: "$$adoption.breed",
+                                    gender: "$$adoption.gender",
+                                    color: "$$adoption.color",
+                                    description: "$$adoption.description",
+                                    loc: "$$adoption.loc",
+                                    AdopterId: "$$adoption.AdopterId",
+                                    PosterId: "$$adoption.PosterId",
+                                    InformationId: "$$adoption.InformationId",
+                                    status: "$$adoption.status",
+                                    statusPrice: "$$adoption.statusPrice",
+                                    photo: "$$adoption.photo",
+                                    createdAt: "$$adoption.createdAt",
+                                    updatedAt: "$$adoption.updatedAt",
+                                }
+                            }
+                        },
+                    },
+                    "accountType": 1,
+                    "createdAt": 1,
+                    "updatedAt": 1,
+                   
+                  
+                }
+            },
         ]).toArray();
 
-        return user[0];
+        return user[0]; 
     }
 
     static async patchCurrentLoc({ currentLoc, userId }) {
