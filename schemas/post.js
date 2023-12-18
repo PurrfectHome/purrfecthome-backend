@@ -73,8 +73,6 @@ type Post {
       description: String
       statusPrice: String
       photo: [String]
-      long: Float
-      lat: Float
     ): PostResponse
 
     UpdateAdopter(
