@@ -16,6 +16,25 @@ const typeDefs = `#graphql
   coordinates: [Float]
 }
 
+type info {
+  deskripsi: String,
+  emoji: String
+}
+
+type infoDesc {
+    makanan: info,
+    kesehatan: info,
+    kebersihan: info,
+    aktivitas: info,
+    tempat_beristirahat: info
+}
+
+type Information {
+  _id: ID,
+  breed: String,
+  description: infoDesc
+}
+
 type Post {
   _id: ID
   name: String
@@ -26,11 +45,12 @@ type Post {
   color: String
   description: String
   loc: GeoLoc
-  long: Float
-  lat: Float
+  # long: Float
+  # lat: Float
   AdopterId: ID
   PosterId: ID
   InformationId: ID
+  Information: Information
   status: String
   statusPrice: String
   photo: [String]
@@ -41,7 +61,7 @@ type Post {
   type Query {
     postsByRadius(breed: String, lat: Float, long: Float): [Post]
     postsById(PostId: String): Post
-    postsByPosterId(PosterId: String, status: String): [Post]
+    postsByPosterId( status: String): [Post]
     postsByAdopterId(AdopterId: String): [Post]
   }
 
@@ -75,12 +95,12 @@ type Post {
       lat: Float
     ): PostResponse
 
-    UpdateAdopter(
+    updateAdopter(
         AdopterId: ID
         PostId: ID
     ): UpdateAdopterRes
     
-    DeletePost(
+    deletePost(
         PostId: ID
     ): DeletePostRes
 
@@ -113,10 +133,9 @@ const resolvers = {
         await User.patchCurrentLoc({ currentLoc: currentCity, userId });
 
         const posts = await Post.getByRadius({ lat, long, breed });
-        console.log(posts);
+
         return posts;
       } catch (err) {
-        console.log(err);
         throw err;
       }
     },
@@ -131,10 +150,10 @@ const resolvers = {
       }
     },
 
-    postsByPosterId: async (_, { PosterId, status }, { authentication }) => {
+    postsByPosterId: async (_, { status }, { authentication }) => {
       try {
-        await authentication();
-        const posts = await Post.getByPosterId({ PosterId, status });
+        const { userId } = await authentication();
+        const posts = await Post.getByPosterId({ PosterId: userId, status });
         return posts;
       } catch (err) {
         throw err;
@@ -153,7 +172,7 @@ const resolvers = {
   },
 
   Mutation: {
-    UpdateAdopter: async (_, { AdopterId, PostId }, { authentication, authorization }) => {
+    updateAdopter: async (_, { AdopterId, PostId }, { authentication, authorization }) => {
       try {
         await authentication();
         await authorization();
@@ -234,28 +253,24 @@ const resolvers = {
         const informationData = await Information.getByBreed(breed);
         let InformationId;
         if (!informationData) {
-          console.log('masuk sini')
           const generateInfo = await chatAI(breed);
           const descriptionInfo = JSON.parse(generateInfo);
-          
+
           const newInformation = await Information.create(breed, descriptionInfo);
           InformationId = newInformation._id;
         } else {
-          console.log('masuk cuyy')
           InformationId = informationData._id;
         }
-        console.log(InformationId)
 
         const newPost = await Post.create(name, size, age, breed, gender, color, description, InformationId, photo, long, lat, userId, statusPrice);
 
         return { message: `successfully add post with cat's name : ${newPost.name}`, code: "Success" };
       } catch (err) {
-        console.log(err);
         throw err
       }
     },
 
-    DeletePost: async (_, { PostId }, { authentication, authorization }) => {
+    deletePost: async (_, { PostId }, { authentication, authorization }) => {
       try {
         await authentication();
         await authorization();
