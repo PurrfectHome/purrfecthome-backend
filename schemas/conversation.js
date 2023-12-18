@@ -11,9 +11,9 @@ const typeDefs = `#graphql
     updatedAt: String
   }
 
-#   type Query {
-    
-#   }
+  type Query {
+    convosByUser: [Conversation]
+  }
 
   type Mutation {
     addConvo(
@@ -28,9 +28,17 @@ const typeDefs = `#graphql
 `;
 
 const resolvers = {
-    // Query: {
-
-    // },
+    Query: {
+        convosByUser: async (_, __, { authentication }) => {
+            try {
+                const { userId } = await authentication()
+                const convos = await Conversation.getAll(userId)
+                return convos
+            } catch (err) {
+                throw err
+            }
+        }
+    },
 
     Mutation: {
         addConvo: async (_, args, { authentication }) => {
@@ -60,7 +68,7 @@ const resolvers = {
                 }
 
                 const newConvo = await Conversation.create(userId, UserId2)
-                return { message: `added new conversation with: ${newConvo.user2}`, code: "Success" };
+                return { message: `added new conversation with id: ${newConvo._id}`, code: "Success" };
                  
             } catch(err) {
                 throw err
