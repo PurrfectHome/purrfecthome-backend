@@ -23,21 +23,80 @@ class Conversation {
         }
 
         const convo = getDB().collection("Conversations").findOne(query)
-        return convo
+        return convo;
     }
 
     static async getAll(userId) {
-        const query = {
-            $or: [
-                { user1: new ObjectId(userId) },
-                { user2: new ObjectId(userId) }
-            ]
-        };
-        const convos = getDB().collection("Conversations").find(query).toArray()
-
-        return convos
+        const pipeline = [
+            {
+                $match: {
+                    $or: [
+                        { user1: new ObjectId(userId) },
+                        { user2: new ObjectId(userId) }
+                    ], 
+                }
+            },
+            {
+                $lookup: {
+                    from: "Users",
+                    localField: "user1",
+                    foreignField: "_id",
+                    as: "user1Profile"
+                }
+            },
+            {
+                $lookup: {
+                    from: "Users",
+                    localField: "user2",
+                    foreignField: "_id",
+                    as: "user2Profile"
+                }
+            },
+            {
+                $unwind: "$user1Profile"
+            },
+            {
+                $unwind: "$user2Profile"
+            },
+            {
+                $lookup: {
+                    from: "Messages",
+                    localField: "_id",
+                    foreignField: "ConversationID",
+                    as: "messages"
+                }
+            },
+            {
+                $addFields: {
+                    user1: "$user1Profile",
+                    user2: "$user2Profile"
+                }
+            },
+            {
+                $group: {
+                    _id: "$_id",
+                    user1: { $first: "$user1" },
+                    user2: { $first: "$user2" },
+                    Messages: { $first: "$messages" }
+                }
+            },
+            // {
+            //     $sort : { 'message.createdAt' : -1 }
+            // },
+            {
+                $project: {
+                    _id: 1,
+                    user1: 1,
+                    user2: 1,
+                    Messages: 1
+                }
+            }
+        ];
+    
+        const convos = await getDB().collection("Conversations").aggregate(pipeline).toArray();
+  
+        return convos;
     }
-
     static async getById(convoId) {
         const Convos = getDB().collection("Conversations")
         const convo = await Convos.aggregate([
@@ -53,7 +112,7 @@ class Conversation {
                 }
             }
         ]).toArray();
-        console.log(convo[0])
+
         return convo[0]
     }
 }

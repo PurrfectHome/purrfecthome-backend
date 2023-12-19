@@ -2,15 +2,44 @@ const { GraphQLError } = require("graphql");
 const Conversation = require("../models/conversation");
 
 const typeDefs = `#graphql
+    type userRoom {
+        _id: ID,
+        fullname: String,
+        username: String,
+        email: String,
+        password: String,
+        long: Float,
+        lat: Float,
+        accountType: String,
+        createdAt: String,
+        updatedAt: String,
+        avatar: String,
+    }
+
+    type Messages {
+        _id: ID,
+        message: String,
+        ConversationID: ID,
+        User1: ID,
+        createdAt: String,
+        updatedAt: String,
+    }
 
   type Conversation {
     _id: ID
-    user1: ID
-    user2: ID
+    user1: userRoom
+    user2: userRoom
     createdAt: String
     updatedAt: String
+    Messages: [Messages],
   }
 
+  type RoomChat {
+    Conversation: [Conversation],
+    UserLoggedIn: String
+  }
+  
+  
   type ConvoIdRes {
     _id: ID
     user1: ID
@@ -21,7 +50,7 @@ const typeDefs = `#graphql
   }
 
   type Query {
-    convosByUser: [Conversation]
+    convosByUser: RoomChat
     convoById(convoId: String): ConvoIdRes
   }
 
@@ -33,7 +62,8 @@ const typeDefs = `#graphql
 
   type ConvoResponse {
     message: String
-    code: String
+    code: String,
+    data: String
   }
 
 
@@ -53,9 +83,10 @@ const resolvers = {
             try {
                 const { userId } = await authentication()
                 const convos = await Conversation.getAll(userId)
-                console.log(convos)
-                return convos
+             
+                return { Conversation: convos, UserLoggedIn: userId}
             } catch (err) {
+                console.log(err);
                 throw err
             }
         },
@@ -83,25 +114,25 @@ const resolvers = {
                 if (!UserId2) {
                     throw new GraphQLError("UserId2 is required", {
                       extensions: { code: "Bad Request" }
-                    })
+                    });
                 }
 
                 if (userId === UserId2) {
                     throw new GraphQLError("Cannot use the same IDs", {
                         extensions: { code: "Bad Request" }
-                    })
+                    });
                 }
 
-                const convo = await Conversation.getByUser(userId, UserId2)
-                console.log(convo)
+                const convo = await Conversation.getByUser(userId, UserId2);
+
                 if (convo) {
-                    throw new GraphQLError("Conversation already established", {
+                    throw new GraphQLError(`${convo._id}`, {
                         extensions: { code: "Bad Request" }
-                    })
+                    });
                 }
 
-                const newConvo = await Conversation.create(userId, UserId2)
-                return { message: `added new conversation with id: ${newConvo._id}`, code: "Success" };
+                const newConvo = await Conversation.create(userId, UserId2);
+                return { message: `added new conversation with id: ${newConvo._id}`, code: "Success", data: `${newConvo._id}` };
                  
             } catch(err) {
                 throw err

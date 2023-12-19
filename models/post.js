@@ -35,7 +35,6 @@ class Post {
         }
 
         const posterPosts = await Posts.find(query).toArray();
-
         return posterPosts;
     }
 
@@ -60,7 +59,8 @@ class Post {
                     },
                     $maxDistance: 2500000
                 },
-            }
+            },
+            status: 'available'
         };
 
         if (breed) {
@@ -91,7 +91,7 @@ class Post {
         return deletePost;
     }
 
-    static async create(name, size, age, breed, gender, color, description, InformationId, photo, long, lat, PosterId, statusPrice, userId) {
+    static async create(name, size, age, breed, gender, color, description, InformationId, photo, long, lat, PosterId, statusPrice) {
         const newPost = {
             name,
             size,

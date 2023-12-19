@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "concurrently \"nodemon app.js\" \"nodemon expressApp.js\""
+    "dev": "concurrently \"nodemon app.js\" \"nodemon expressApp.js\"",
+    "devExpress": "nodemon expressApp.js"
   },
   "keywords": [],
   "author": "",
