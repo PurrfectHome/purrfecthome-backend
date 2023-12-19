@@ -97,9 +97,10 @@ class Conversation {
   
         return convos;
     }
+
     static async getById(convoId) {
         const Convos = getDB().collection("Conversations")
-        const convo = await Convos.aggregate([
+        const pipeline = [
             {
                 $match: { _id: new ObjectId(convoId) }
             },
@@ -108,11 +109,62 @@ class Conversation {
                     from: "Messages",
                     localField: "_id",
                     foreignField: "ConversationID",
-                    as: "MessagesByConvo"
+                    as: "Messages"
+                }
+            },
+            {
+                $lookup: {
+                    from: "Users",
+                    localField: "user1",
+                    foreignField: "_id",
+                    as: "user1Profile"
+                }
+            },
+            {
+                $lookup: {
+                    from: "Users",
+                    localField: "user2",
+                    foreignField: "_id",
+                    as: "user2Profile"
+                },
+            },
+            {
+                $unwind: "$user2Profile",
+            },
+            {
+                $unwind: "$user1Profile",
+            },
+            {
+                $addFields: {
+                    user1: "$user1Profile",
+                    user2: "$user2Profile"
+                }
+            },
+            // {
+            //     $unwind: "$user2Profile",
+            // },
+            // {
+            //     $unwind: "$user1Profile",
+            // },
+            {
+                $group: {
+                    _id: "$_id",
+                    user1: { $first: "$user1" },
+                    user2: { $first: "$user2" },
+                    Messages: { $first: "$Messages" }
+                },
+            },
+            {
+                $project: {
+                    _id: 1,
+                    user1: 1,
+                    user2: 1,
+                    Messages: 1,
                 }
             }
-        ]).toArray();
-
+        ]
+        const convo = await Convos.aggregate(pipeline).toArray();
+        console.log(convo[0])
         return convo[0]
     }
 }
