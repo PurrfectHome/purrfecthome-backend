@@ -29,8 +29,6 @@ const typeDefs = `#graphql
     _id: ID
     user1: userRoom
     user2: userRoom
-    createdAt: String
-    updatedAt: String
     Messages: [Messages],
   }
 
@@ -41,12 +39,8 @@ const typeDefs = `#graphql
   
   
   type ConvoIdRes {
-    _id: ID
-    user1: ID
-    user2: ID
-    createdAt: String
-    updatedAt: String
-    MessagesByConvo: [Message]
+    Conversation: Conversation,
+    UserLoggedIn: String
   }
 
   type Query {
@@ -92,12 +86,12 @@ const resolvers = {
         },
 
         convoById: async (_, args, { authentication }) => {
-            await authentication()
+            const { userId } = await authentication()
             try {
                 const { convoId } = args
                 const convo = await Conversation.getById(convoId)
-                console.log(convo)
-                return convo
+                
+                return { Conversation: convo, UserLoggedIn: userId}
             } catch(err) {
                 throw err
             }

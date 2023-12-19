@@ -36,7 +36,6 @@ io.on('connection', (socket) => {
 const cors = require('cors');
 app.use(cors());
 
-const { getDB } = require('./config/mongo');
 
 app.get("/", (req, res) => {
     res.send("Hello World")
