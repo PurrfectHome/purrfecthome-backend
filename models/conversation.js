@@ -164,7 +164,7 @@ class Conversation {
             }
         ]
         const convo = await Convos.aggregate(pipeline).toArray();
-        console.log(convo[0])
+     
         return convo[0]
     }
 }

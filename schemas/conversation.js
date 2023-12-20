@@ -80,7 +80,6 @@ const resolvers = {
              
                 return { Conversation: convos, UserLoggedIn: userId}
             } catch (err) {
-                console.log(err);
                 throw err
             }
         },

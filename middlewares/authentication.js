@@ -44,7 +44,6 @@ const authorization = async (req) => {
 
         return true;
     } catch (error) {
-        console.log(error);
         throw error;
     }
 }
