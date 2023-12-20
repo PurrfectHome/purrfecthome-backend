@@ -17,7 +17,7 @@ Purrfecthome-backend is the backend repository for the PurrfectHome applicationâ
       [x] Query (postsByRadius(limit, breed)) (by radius)
       [x] Include get current location (city) from Google Maps API
     [x] Profile Screen
-      [x]  Query (usersProfile) â†’ include Release(history of posting) and Adoption
+      [x] Query (usersProfile) â†’ include Release(history of posting) and Adoption
     [x] Add Post Screen
       [x] Mutation (addPost)
         [x] Generate treatment suggestion from openai
@@ -25,11 +25,12 @@ Purrfecthome-backend is the backend repository for the PurrfectHome applicationâ
       [x] Query (postsById) â†’ include treatment suggestion from openai
     [x] Adoptable Post Screen
       [x] Query (postsByPosterId)
-      [x]  Query (usersByUsername)
+      [x] Query (usersByUsername)
       [x] Mutation (updateAdopter)
       [x] Mutation (deletePost)
       [x] Mutation (editPost)
     [ ] Chat History
+      [x] Query (usersById) -> Profile Other User
       [ ] Query (chats)
     [ ] Chat Room
       [ ] Query (chats)

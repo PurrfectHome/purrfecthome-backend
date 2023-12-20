@@ -23,7 +23,6 @@ io.on('connection', (socket) => {
     console.log('New Connection with ID: ', socket.id)
 
     socket.on("sendMessage", (payload) => {
-        console.log(payload)
 
         socket.broadcast.emit("new-message", payload)
     })

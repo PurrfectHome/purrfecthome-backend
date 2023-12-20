@@ -57,7 +57,7 @@ class Post {
                         type: "Point",
                         coordinates: [long, lat]
                     },
-                    $maxDistance: 2500000
+                    $maxDistance: 70000
                 },
             },
             status: 'available'
